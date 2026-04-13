@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router';
+import { Link, NavLink } from 'react-router';
 import './Navbar.css'
 import { ShoppingBag } from 'lucide-react';
 
@@ -38,22 +38,23 @@ const Navbar = () => {
                     <ul
                         tabIndex="-1"
                         className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
-                       {links}
+                        {links}
                     </ul>
                 </div>
-                <img src="/public/logo.png" alt="" className='md:h-16 h-8' />
+                <img src="https://i.ibb.co.com/SzZr84Z/logo.png" alt="" className='md:h-16 h-8' />
             </div>
             <div className="navbar-center hidden lg:flex">
                 <ul className="menu menu-horizontal px-1">
-                   {links}
+                    {links}
                 </ul>
             </div>
             <div className="navbar-end gap-2">
-                <ShoppingBag/>
-                <button className="bg-red-950 text-red-400 border border-red-400 border-b-4 font-medium overflow-hidden relative px-4 py-2 rounded-md hover:brightness-150 hover:border-t-4 hover:border-b active:opacity-75 outline-none duration-300 group">
+                <ShoppingBag />
+                <Link to={'register'}><button className="bg-red-950 text-red-400 border border-red-400 border-b-4 font-medium overflow-hidden relative px-4 py-2 rounded-md hover:brightness-150 hover:border-t-4 hover:border-b active:opacity-75 outline-none duration-300 group">
                     <span className="bg-red-400 shadow-red-400 absolute -top-[150%] left-0 inline-flex w-80 h-[5px] rounded-md opacity-50 group-hover:top-[150%] duration-500 shadow-[0_0_10px_10px_rgba(0,0,0,0.3)]"></span>
                     Sign Up
                 </button>
+                </Link>
             </div>
         </div>
     );

@@ -6,15 +6,22 @@ import { createBrowserRouter, RouterProvider } from 'react-router'
 import Root from './assets/Layout/Root.jsx'
 import ErrorPage from './assets/Components/ErrorPage/ErrorPage.jsx'
 import Home from './assets/Components/Home/Home.jsx'
+import SignUp from './assets/Components/SignUp/SignUp.jsx'
 
 const router = createBrowserRouter([{
   path: '/',
   Component: Root,
   errorElement: <ErrorPage></ErrorPage>,
-  children: [{
+  children: [
+    {
     index: true,
     Component:Home,
-  }]
+    },
+    {
+      path: 'register',
+      Component: SignUp
+    },
+  ]
 }])
 
 createRoot(document.getElementById('root')).render(
