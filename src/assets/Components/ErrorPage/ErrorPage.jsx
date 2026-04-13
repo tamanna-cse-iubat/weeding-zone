@@ -15,7 +15,7 @@ const ErrorPage = () => {
                         Please check Your Internet Connection or Reload
                     </p>
                   
-                    <button
+                    <Link to={'/'}> <button
                         className="relative group border-none bg-transparent p-0 outline-none cursor-pointer font-mono font-light uppercase text-base"
                     >
                         <span
@@ -29,7 +29,7 @@ const ErrorPage = () => {
                         <div
                             className="relative flex items-center justify-between py-3 px-6 text-lg text-white rounded-lg transform -translate-y-1 bg-gradient-to-r from-[#f27121] via-[#e94057] to-[#8a2387] gap-3 transition duration-[600ms] ease-[cubic-bezier(0.3,0.7,0.4,1)] group-hover:-translate-y-1.5 group-hover:duration-[250ms] group-active:-translate-y-0.5 brightness-100 group-hover:brightness-110"
                         >
-                            <span className="select-none"><Link to={'/'}>Go Back</Link></span>
+                            <span className="select-none">Go Back</span>
 
                             <svg
                                 viewBox="0 0 20 20"
@@ -44,6 +44,7 @@ const ErrorPage = () => {
                             </svg>
                         </div>
                     </button>
+                </Link>
 
                     
                 </div>

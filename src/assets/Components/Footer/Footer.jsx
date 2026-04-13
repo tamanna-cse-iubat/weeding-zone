@@ -50,7 +50,7 @@ const Footer = () => {
             </ul>
 
             <aside>
-                <p>Copyright © {new Date().getFullYear()} - All right reserved by ACME Industries Ltd</p>
+                <p>Copyright © {new Date().getFullYear()} - All right reserved by Weeding Zone By Tamanna Parvez</p>
             </aside>
         </footer>
     );

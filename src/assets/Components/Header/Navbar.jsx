@@ -41,7 +41,7 @@ const Navbar = () => {
                        {links}
                     </ul>
                 </div>
-                <a className="btn btn-ghost md:text-xl">Weeding Zone</a>
+                <img src="/public/logo.png" alt="" className='md:h-16 h-8' />
             </div>
             <div className="navbar-center hidden lg:flex">
                 <ul className="menu menu-horizontal px-1">
