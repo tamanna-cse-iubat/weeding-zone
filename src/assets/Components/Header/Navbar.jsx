@@ -1,14 +1,16 @@
 import React from 'react';
+import { NavLink } from 'react-router';
+import './Navbar.css'
 
 const links = <>
-    <li><a>Home</a></li>
+    <li><NavLink to={'/'}>Home</NavLink></li>
     <li>
         <details>
             <summary>Bride</summary>
             <ul className="p-2 bg-base-100 w-40 z-1">
-                <li><a>Lahenga</a></li>
-                <li><a>Shari </a></li>
-                <li><a>Holud Dress </a></li>
+                <li><NavLink to={'lahenga'}>Lahenga</NavLink></li>
+                <li><NavLink to={'shari'}>Shari </NavLink></li>
+                <li><NavLink to={'holud'}>Holud Dress </NavLink></li>
             </ul>
         </details>
     </li>
@@ -16,13 +18,13 @@ const links = <>
         <details>
             <summary>Groom</summary>
             <ul className="p-2 bg-base-100 w-40 z-1">
-                <li><a>Sherwani</a></li>
-                <li><a>Pagri</a></li>
-                <li><a>Nagra</a></li>
+                <li><NavLink to={'sherwani'}>Sherwani</NavLink></li>
+                <li><NavLink to={'pagri'}>Pagri</NavLink></li>
+                <li><NavLink to={'nagra'}>Nagra</NavLink></li>
             </ul>
         </details>
     </li>
-    <li><a>Contact Us</a></li>
+    <li><NavLink to={'contact'}>Contact Us</NavLink></li>
 </>
 const Navbar = () => {
     return (
