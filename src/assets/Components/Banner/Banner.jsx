@@ -18,8 +18,8 @@ const Banner = () => {
                     </p>
                     <div className='flex justify-center gap-3'>
                         {/* <button className="btn btn-accent">Explore Bride</button> */}
-                        <button className="btn bg-accent btn-lg text-white skeleton">Explore Bride</button>
-                        <button className="btn bg-accent btn-lg text-white skeleton">Explore Groom</button>
+                        <button className="btn bg-accent md:btn-lg text-white skeleton">Explore Bride</button>
+                        <button className="btn bg-accent md:btn-lg text-white skeleton">Explore Groom</button>
                     </div>
                 </div>
             </div>
