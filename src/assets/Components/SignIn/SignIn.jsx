@@ -17,7 +17,7 @@ const SignIn = () => {
                 <div className="capitalize">
                     <p className="text-2xl text-[#7F3D27] pb-5">Sign In Your Account</p>
                     <form action="" className="flex flex-col gap-3">
-                       
+
 
                         <div className="flex flex-col items-start w-full">
                             <label for="email" className="text-sm text-[#7F3D27] font-semibold"
@@ -39,9 +39,8 @@ const SignIn = () => {
                                 placeholder="Enter Your Password"
                                 className="w-full py-px pl-0 bg-transparent outline-none focus:ring-0 border-0 border-b-2 border-[#7F3D27] placeholder:text-[#A15A3E] focus:outline-none text-[#7F3D27] placeholder:text-xs"
                             />
+                            <p className='text-accent my-2 hover:text-white'><Link to={'/'}>Forgot Password?</Link></p>
                         </div>
-
-                        
 
                         <div className="inline-flex gap-5">
                             <Link to={'/register'}>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router';
 
 const Banner = () => {
     return (
@@ -18,7 +19,7 @@ const Banner = () => {
                     </p>
                     <div className='flex justify-center gap-3'>
                         {/* <button className="btn btn-accent">Explore Bride</button> */}
-                        <button className="btn bg-accent md:btn-lg text-white skeleton">Explore Bride</button>
+                        <Link to={'/bride'}><button className="btn bg-accent md:btn-lg text-white skeleton">Explore Bride</button></Link>
                         <button className="btn bg-accent md:btn-lg text-white skeleton">Explore Groom</button>
                     </div>
                 </div>

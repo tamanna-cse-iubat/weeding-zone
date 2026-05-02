@@ -2,7 +2,7 @@
   {
     "id": 1,
     "name": "Traditional Mojari Shoes",
-    "photoURL": "",
+    "photoURL": "https://i.ibb.co.com/wZbJ4z08/Traditional-Mojari-Shoes.jpg",
     "category": "Groom",
     "type": "Shoes",
     "occasion": "Wedding",
@@ -13,8 +13,8 @@
   },
   {
     "id": 2,
-    "name": "Cream Wedding Sherwani",
-    "photoURL": "",
+    "name": " Wedding Sherwani",
+    "photoURL": "https://i.ibb.co.com/GvCKwnBH/Cream-Wedding-Sherwani.jpg",
     "category": "Groom",
     "type": "Sherwani",
     "occasion": "Wedding",
@@ -25,8 +25,8 @@
   },
   {
     "id": 3,
-    "name": "Maroon Royal Sherwani",
-    "photoURL": "",
+    "name": "Royal Sherwani",
+    "photoURL": "https://i.ibb.co.com/9kSDxjFV/royal-sherwani.png",
     "category": "Groom",
     "type": "Sherwani",
     "occasion": "Reception",
@@ -37,8 +37,8 @@
   },
   {
     "id": 4,
-    "name": "Black Formal Suit",
-    "photoURL": "",
+    "name": "Formal Suit",
+    "photoURL": "https://i.ibb.co.com/bMP6rMTB/formal-suits.png",
     "category": "Groom",
     "type": "Suit",
     "occasion": "Reception",
@@ -49,7 +49,7 @@
   },
   {
     "id": 5,
-    "name": "Haldi Yellow Kurta",
+    "name": "Haldi Kurta",
     "photoURL": "",
     "category": "Groom",
     "type": "Panjabi",

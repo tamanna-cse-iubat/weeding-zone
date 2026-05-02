@@ -8,6 +8,7 @@ import ErrorPage from './assets/Components/ErrorPage/ErrorPage.jsx'
 import Home from './assets/Components/Home/Home.jsx'
 import SignUp from './assets/Components/SignUp/SignUp.jsx'
 import SignIn from './assets/Components/SignIn/SignIn.jsx'
+import Bride from './assets/Components/Bride/Bride.jsx'
 
 const router = createBrowserRouter([{
   path: '/',
@@ -15,8 +16,9 @@ const router = createBrowserRouter([{
   errorElement: <ErrorPage></ErrorPage>,
   children: [
     {
-    index: true,
-    Component:Home,
+      index: true,
+      Component: Home,
+      
     },
     {
       path: '/register',
@@ -26,6 +28,10 @@ const router = createBrowserRouter([{
       path: '/signin',
       Component: SignIn
     },
+    {
+      path: '/bride',
+      Component: Bride
+  }
   ]
 }])
 

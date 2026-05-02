@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router';
 
@@ -10,7 +11,7 @@ const ErrorPage = () => {
                     className="md:max-w-lg rounded-lg shadow-2xl"
                 />
                 <div>
-                    <h1 className="text-2xl  md:text-5xl font-bold">Page Not Found</h1>
+                    <h1 className="text-2xl  md:text-5xl font-bold">Page Not Found </h1>
                     <p className="py-6">
                         Please check Your Internet Connection or Reload
                     </p>
