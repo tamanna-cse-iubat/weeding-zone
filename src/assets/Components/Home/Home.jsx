@@ -1,15 +1,18 @@
 import React from 'react';
 import Banner from '../Banner/Banner';
 
-import ProductCard from '../ProductCard/ProductCard';
+import ProductsCard from '../ProductCard/ProductsCard';
+import { useLoaderData } from 'react-router';
 
 const Home = () => {
+    const productsData = useLoaderData();
+    console.log(productsData);
   
     return (
         <>
             <div>
                 <Banner></Banner>
-                <ProductCard></ProductCard>
+                <ProductsCard productsData={productsData}></ProductsCard>
             </div>
             <div>
                 

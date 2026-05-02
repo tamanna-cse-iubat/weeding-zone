@@ -1,15 +1,27 @@
 [
-  {
-    "id": 1,
-    "name": "Traditional Mojari Shoes",
-    "photoURL": "https://i.ibb.co.com/wZbJ4z08/Traditional-Mojari-Shoes.jpg",
-    "category": "Groom",
-    "type": "Shoes",
+{
+    "id": 7,
+    "name": "Red Bridal Lehenga",
+    "photoURL": "https://i.ibb.co.com/HfJgtD0Z/red-weeding-lahenga.png",
+    "category": "Bride",
+    "type": "Lehenga",
     "occasion": "Wedding",
     "rent_for_days": 3,
-    "rent": 6000,
-    "size": ["40", "41", "42"],
-    "stock": 9
+    "rent": 12000,
+    "size": ["S", "M", "L"],
+    "stock": 5
+  },
+    {
+    "id": 5,
+    "name": "Haldi Kurta",
+    "photoURL": "https://i.ibb.co.com/rK8Jkr9h/haldi-kurta.jpg",
+    "category": "Groom",
+    "type": "Panjabi",
+    "occasion": "Haldi",
+    "rent_for_days": 3,
+    "rent": 4000,
+    "size": ["S", "M", "L"],
+    "stock": 6
   },
   {
     "id": 2,
@@ -35,7 +47,106 @@
     "size": ["L", "XL"],
     "stock": 3
   },
+ 
+
   {
+    "id": 6,
+    "name": "Wedding Pagri Set",
+    "photoURL": "https://i.ibb.co.com/szcJgHV/weeding-pagri.png",
+    "category": "Groom",
+    "type": "Pagri",
+    "occasion": "Wedding",
+    "rent_for_days": 3,
+    "rent": 3000,
+    "size": ["Free"],
+    "stock": 10
+  },
+  
+  {
+    "id": 8,
+    "name": "Golden Zari Lehenga",
+    "photoURL": "https://i.ibb.co.com/fVyZLGY3/Golden-Zari-Lehenga.png",
+    "category": "Bride",
+    "type": "Lehenga",
+    "occasion": "Reception",
+    "rent_for_days": 3,
+    "rent": 13000,
+    "size": ["M", "L"],
+    "stock": 3
+  },
+  {
+    "id": 9,
+    "name": "Haldi Floral Lehenga",
+    "photoURL": "https://i.ibb.co.com/LhJWrBH8/Haldi-Flora-l-Lehenga.png",
+    "category": "Bride",
+    "type": "Lehenga",
+    "occasion": "Haldi",
+    "rent_for_days": 3,
+    "rent": 8000,
+    "size": ["S", "M"],
+    "stock": 4
+  },
+  {
+    "id": 10,
+    "name": "Banarasi Bridal Saree",
+    "photoURL": "https://i.ibb.co.com/wN2DXd8H/Banarasi-Bridal-Saree.png",
+    "category": "Bride",
+    "type": "Saree",
+    "occasion": "Wedding",
+    "rent_for_days": 3,
+    "rent": 10000,
+    "size": ["Free"],
+    "stock": 6
+  },
+  {
+    "id": 11,
+    "name": "Organza Party Saree",
+    "photoURL": "https://i.ibb.co.com/fzLNpVks/Organza-Party-Saree.png",
+    "category": "Bride",
+    "type": "Saree",
+    "occasion": "Reception",
+    "rent_for_days": 3,
+    "rent": 7000,
+    "size": ["Free"],
+    "stock": 5
+  },
+  {
+    "id": 12,
+    "name": "Reception Designer Gown",
+    "photoURL": "https://i.ibb.co.com/MDcwXKqk/recieption-bridal-gown.png",
+    "category": "Bride",
+    "type": "Gown",
+    "occasion": "Reception",
+    "rent_for_days": 3,
+    "rent": 14000,
+    "size": ["S", "M", "L"],
+    "stock": 3
+  },
+  {
+    "id": 13,
+    "name": "Mehendi Green 3 Piece",
+    "photoURL": "https://i.ibb.co.com/QFjKq5K8/mehendi-Green-3-Piece.png",
+    "category": "Bride",
+    "type": "3 Piece",
+    "occasion": "Mehendi",
+    "rent_for_days": 3,
+    "rent": 6000,
+    "size": ["S", "M"],
+    "stock": 6
+  },
+  {
+    "id": 14,
+    "name": "Bridal Golden Heels",
+    "photoURL": "https://i.ibb.co.com/7J828b4S/Bridal-Golden-Heels.png",
+    "category": "Bride",
+    "type": "Shoes",
+    "occasion": "Wedding",
+    "rent_for_days": 3,
+    "rent": 3000,
+    "size": ["36", "37", "38"],
+    "stock": 8
+  },
+   {
     "id": 4,
     "name": "Formal Suit",
     "photoURL": "https://i.ibb.co.com/bMP6rMTB/formal-suits.png",
@@ -48,129 +159,9 @@
     "stock": 5
   },
   {
-    "id": 5,
-    "name": "Haldi Kurta",
-    "photoURL": "",
-    "category": "Groom",
-    "type": "Panjabi",
-    "occasion": "Haldi",
-    "rent_for_days": 3,
-    "rent": 4000,
-    "size": ["S", "M", "L"],
-    "stock": 6
-  },
-  {
-    "id": 6,
-    "name": "Wedding Pagri Set",
-    "photoURL": "",
-    "category": "Groom",
-    "type": "Pagri",
-    "occasion": "Wedding",
-    "rent_for_days": 3,
-    "rent": 3000,
-    "size": ["Free"],
-    "stock": 10
-  },
-  {
-    "id": 7,
-    "name": "Red Bridal Lehenga",
-    "photoURL": "",
-    "category": "Bride",
-    "type": "Lehenga",
-    "occasion": "Wedding",
-    "rent_for_days": 3,
-    "rent": 12000,
-    "size": ["S", "M", "L"],
-    "stock": 5
-  },
-  {
-    "id": 8,
-    "name": "Golden Zari Lehenga",
-    "photoURL": "",
-    "category": "Bride",
-    "type": "Lehenga",
-    "occasion": "Reception",
-    "rent_for_days": 3,
-    "rent": 13000,
-    "size": ["M", "L"],
-    "stock": 3
-  },
-  {
-    "id": 9,
-    "name": "Haldi Floral Lehenga",
-    "photoURL": "",
-    "category": "Bride",
-    "type": "Lehenga",
-    "occasion": "Haldi",
-    "rent_for_days": 3,
-    "rent": 8000,
-    "size": ["S", "M"],
-    "stock": 4
-  },
-  {
-    "id": 10,
-    "name": "Banarasi Bridal Saree",
-    "photoURL": "",
-    "category": "Bride",
-    "type": "Saree",
-    "occasion": "Wedding",
-    "rent_for_days": 3,
-    "rent": 10000,
-    "size": ["Free"],
-    "stock": 6
-  },
-  {
-    "id": 11,
-    "name": "Organza Party Saree",
-    "photoURL": "",
-    "category": "Bride",
-    "type": "Saree",
-    "occasion": "Reception",
-    "rent_for_days": 3,
-    "rent": 7000,
-    "size": ["Free"],
-    "stock": 5
-  },
-  {
-    "id": 12,
-    "name": "Reception Designer Gown",
-    "photoURL": "",
-    "category": "Bride",
-    "type": "Gown",
-    "occasion": "Reception",
-    "rent_for_days": 3,
-    "rent": 14000,
-    "size": ["S", "M", "L"],
-    "stock": 3
-  },
-  {
-    "id": 13,
-    "name": "Mehendi Green 3 Piece",
-    "photoURL": "",
-    "category": "Bride",
-    "type": "3 Piece",
-    "occasion": "Mehendi",
-    "rent_for_days": 3,
-    "rent": 6000,
-    "size": ["S", "M"],
-    "stock": 6
-  },
-  {
-    "id": 14,
-    "name": "Bridal Golden Heels",
-    "photoURL": "",
-    "category": "Bride",
-    "type": "Shoes",
-    "occasion": "Wedding",
-    "rent_for_days": 3,
-    "rent": 3000,
-    "size": ["36", "37", "38"],
-    "stock": 8
-  },
-  {
     "id": 15,
     "name": "Pastel Pink Lehenga",
-    "photoURL": "",
+    "photoURL": "https://i.ibb.co.com/0WXGjKk/pastel-pink-lahenga.png",
     "category": "Bride",
     "type": "Lehenga",
     "occasion": "Mehendi",
@@ -182,7 +173,7 @@
   {
     "id": 16,
     "name": "Navy Blue Tuxedo",
-    "photoURL": "",
+    "photoURL": "https://i.ibb.co.com/rG7Nv3fR/blue-taxedo.png",
     "category": "Groom",
     "type": "Suit",
     "occasion": "Reception",
@@ -194,7 +185,7 @@
   {
     "id": 17,
     "name": "White Classic Panjabi",
-    "photoURL": "",
+    "photoURL": "https://i.ibb.co.com/Zzvx09x2/white-classic-panjabi.png",
     "category": "Groom",
     "type": "Panjabi",
     "occasion": "Wedding",
@@ -206,7 +197,7 @@
   {
     "id": 18,
     "name": "Golden Embroidered Sherwani",
-    "photoURL": "",
+    "photoURL": "https://i.ibb.co.com/ynSYwYxv/golden-abrodiary-panjabi.png",
     "category": "Groom",
     "type": "Sherwani",
     "occasion": "Wedding",
@@ -218,7 +209,7 @@
   {
     "id": 19,
     "name": "Floral Mehendi Saree",
-    "photoURL": "",
+    "photoURL": "https://i.ibb.co.com/Kjrgv6sM/mehendi-froral-saree.png",
     "category": "Bride",
     "type": "Saree",
     "occasion": "Mehendi",
@@ -230,7 +221,7 @@
   {
     "id": 20,
     "name": "Wedding Leather Shoes",
-    "photoURL": "",
+    "photoURL": "https://i.ibb.co.com/bg1fCNnH/Wedding-Leather-Shoes.png",
     "category": "Groom",
     "type": "Shoes",
     "occasion": "Wedding",
@@ -238,5 +229,17 @@
     "rent": 5000,
     "size": ["40", "41", "42"],
     "stock": 6
+  },
+    {
+    "id": 1,
+    "name": "Traditional Mojari Shoes",
+    "photoURL": "https://i.ibb.co.com/wZbJ4z08/Traditional-Mojari-Shoes.jpg",
+    "category": "Groom",
+    "type": "Shoes",
+    "occasion": "Wedding",
+    "rent_for_days": 3,
+    "rent": 6000,
+    "size": ["40", "41", "42"],
+    "stock": 9
   }
 ]

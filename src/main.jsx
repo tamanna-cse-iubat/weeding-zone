@@ -9,6 +9,7 @@ import Home from './assets/Components/Home/Home.jsx'
 import SignUp from './assets/Components/SignUp/SignUp.jsx'
 import SignIn from './assets/Components/SignIn/SignIn.jsx'
 import Bride from './assets/Components/Bride/Bride.jsx'
+import axios from 'axios'
 
 const router = createBrowserRouter([{
   path: '/',
@@ -18,6 +19,10 @@ const router = createBrowserRouter([{
     {
       index: true,
       Component: Home,
+      loader: async () => {
+        const res = await axios.get('/product.json');
+        return res.data;
+      },
       
     },
     {
