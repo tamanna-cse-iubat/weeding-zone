@@ -21,9 +21,12 @@ const ProductCard = ({ product }) => {
                      
                     </h2>
                     <div className='text-left'>
-                        <p > Catagory: {occasion}</p>
-                        <p> Rent: BDT-{rent}/{rent_for_days} Days.</p>
+                        <p > Catagory: {category}</p>
+                        <p > Type: {type}</p>
+                        <p > Occassion: {occasion}</p>
+                        
                         <p> Size: {size} </p>
+                        <h3 className='my-2 font-semibold text-sm text-accent'> Rent: BDT-{rent}/{rent_for_days} Days.</h3>
                     </div>
 
                     <div className="card-actions justify-end">
