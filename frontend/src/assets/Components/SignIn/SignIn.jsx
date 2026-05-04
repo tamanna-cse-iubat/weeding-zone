@@ -1,10 +1,18 @@
-import React, { use, useState } from 'react';
-import { Link } from 'react-router';
+import React, { use, useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router';
 import { AuthContext } from '../../../Provider/AuthProvider';
 
 const SignIn = () => {
-    const { signInUser } = use(AuthContext);
+    const { signInUser, user } = use(AuthContext);
     const [error, seterror] = useState('');
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (user) {
+            navigate('/dashboard');
+        }
+    }, [user, navigate]);
+
     const handleLogin = (e) => {
         e.preventDefault();
         const form = e.target;
@@ -14,12 +22,12 @@ const SignIn = () => {
             .then((result) => {
             const user = result.user;
             console.log(user);
-    
+            navigate('/dashboard');
             })
             .catch((error) => {
                 const errorCode = error.code;
                 const errorMessage = error.message;
-                seterror(errorCode, errorMessage);
+                seterror(errorMessage);
             });
         console.log({email, password});
     

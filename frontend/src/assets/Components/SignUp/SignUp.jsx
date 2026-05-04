@@ -1,10 +1,18 @@
-import React, { use } from 'react';
-import { Link } from 'react-router';
+import React, { use, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router';
 import { AuthContext } from '../../../Provider/AuthProvider';
 
 
 const SignUp = () => {
-    const { createUser, setUser } = use(AuthContext);
+    const { createUser, setUser, user } = use(AuthContext);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (user) {
+            navigate('/dashboard');
+        }
+    }, [user, navigate]);
+
     const handleRegister = (e) => {
         e.preventDefault();
         const form = e.target;
@@ -16,7 +24,7 @@ const SignUp = () => {
             .then((result) => {
                 const user = result.user;
                 setUser(user);
-
+                navigate('/dashboard');
             }).catch((error) => {
                 const errorCode = error.code;
                 const errorMassage = error.massage;
