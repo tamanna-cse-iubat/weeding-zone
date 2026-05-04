@@ -1,7 +1,31 @@
-import React from 'react';
+import React, { use } from 'react';
 import { Link } from 'react-router';
+import { AuthContext } from '../../../Provider/AuthProvider';
+
 
 const SignUp = () => {
+    const { createUser, setUser } = use(AuthContext);
+    const handleRegister = (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const name = form.name.value;
+        const email = form.email.value;
+        const password = form.password.value;
+        //console.log(name, email, password);
+        createUser(email, password)
+            .then((result) => {
+                const user = result.user;
+                setUser(user);
+
+            }).catch((error) => {
+                const errorCode = error.code;
+                const errorMassage = error.massage;
+                alert(errorMassage);
+    })
+
+
+    }
+    
     return (
         <div className='m-auto w-11/12 flex justify-center my-10 '>
 
@@ -16,13 +40,14 @@ const SignUp = () => {
 
                 <div className="capitalize">
                     <p className="text-2xl text-[#7F3D27] pb-5">Create Your Account</p>
-                    <form action="" className="flex flex-col gap-3">
+                    <form onSubmit={handleRegister} action="" className="flex flex-col gap-3">
                         <div className="flex flex-col items-start w-full">
                             <label for="name" className="text-sm text-[#7F3D27] font-semibold"
-                            >Name</label
-                            >
+                            >Name</label>
                             <input
                                 type="text"
+                                name='name'
+                                required
                                 placeholder="Enter Your Name"
                                 className="w-full py-px pl-0 bg-transparent outline-none focus:ring-0 border-0 border-b-2 border-[#7F3D27] placeholder:text-[#A15A3E] focus:outline-none text-[#7F3D27] placeholder:text-xs"
                             />
@@ -30,10 +55,11 @@ const SignUp = () => {
 
                         <div className="flex flex-col items-start w-full">
                             <label for="email" className="text-sm text-[#7F3D27] font-semibold"
-                            >Email</label
-                            >
+                            >Email</label>
                             <input
                                 type="email"
+                                name='email'
+                                required
                                 placeholder="Enter Your Email"
                                 className="w-full py-px pl-0 bg-transparent outline-none focus:ring-0 border-0 border-b-2 border-[#7F3D27] placeholder:text-[#A15A3E] focus:outline-none text-[#7F3D27] placeholder:text-xs"
                             />
@@ -41,10 +67,11 @@ const SignUp = () => {
 
                         <div className="flex flex-col items-start w-full">
                             <label for="password" className="text-sm text-[#7F3D27] font-semibold"
-                            >Password</label
-                            >
+                            >Password</label>
                             <input
                                 type="password"
+                                name='password'
+                                required
                                 placeholder="Enter Your Password"
                                 className="w-full py-px pl-0 bg-transparent outline-none focus:ring-0 border-0 border-b-2 border-[#7F3D27] placeholder:text-[#A15A3E] focus:outline-none text-[#7F3D27] placeholder:text-xs"
                             />
@@ -53,10 +80,10 @@ const SignUp = () => {
                         <div className="inline-flex gap-2 items-center text-[#A15A3E]">
                             <input
                                 type="checkbox"
-                                name=""
+                                name="checkbox"
                                 id=""
                                 className="w-3 h-3 focus:border-0 focus:outline-none focus:accent-[#7F3D27] checked:accent-[#A15A3E] checked:text-[#A15A3E] px-1 py-1"
-                                checked=""
+                                
                             />
                             <p className="text-xs">
                                 By Signing Agree with
@@ -65,9 +92,8 @@ const SignUp = () => {
                         </div>
 
                         <div className="inline-flex gap-5">
-                            <button
-                                className="px-6 focus:outline-none focus:scale-110 font-semibold text-xs py-2 rounded-[5px] hover:scale-110 transition-all hover:transiton text-[#D9D9D9] bg-[#7F3D27] shadow-[#7F3D27] shadow-lg"
-                            >
+                            <button type='submit'
+                                className="px-6 focus:outline-none focus:scale-110 font-semibold text-xs py-2 rounded-[5px] hover:scale-110 transition-all hover:transiton text-[#D9D9D9] bg-[#7F3D27] shadow-[#7F3D27] shadow-lg">
                                 Register
                             </button>
                             <Link to={'/signin'}>

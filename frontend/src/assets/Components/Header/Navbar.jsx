@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { use } from 'react';
 import { Link, NavLink } from 'react-router';
 import './Navbar.css'
 import { ShoppingBag } from 'lucide-react';
+import { AuthContext } from '../../../Provider/AuthProvider';
 
 const links = <>
     <li><NavLink to={'/'}>Home</NavLink></li>
@@ -28,6 +29,17 @@ const links = <>
     <li><NavLink to={'contact'}>Contact Us</NavLink></li>
 </>
 const Navbar = () => {
+    const { user, logOut } = use(AuthContext);
+    //console.log(user);
+
+    const handlelogOut=()=> {
+        alert('You Logged out Successfully')
+        logOut().then(() => {
+            // Sign-out successful.
+        }).catch((error) => {
+            console.log(error);
+        });
+    }
     return (
         <div className="navbar bg-base-100 shadow-sm">
             <div className="navbar-start">
@@ -50,11 +62,20 @@ const Navbar = () => {
             </div>
             <div className="navbar-end gap-2">
                 <ShoppingBag />
-                <Link to={'register'}><button className="bg-red-950 text-red-400 border border-red-400 border-b-4 font-medium overflow-hidden relative px-4 py-2 rounded-md hover:brightness-150 hover:border-t-4 hover:border-b active:opacity-75 outline-none duration-300 group">
+                {user ?  
+                    <Link to={'/'}><button onClick={handlelogOut} className="bg-red-950 text-red-400 border border-red-400 border-b-4 font-medium overflow-hidden relative px-4 py-2 rounded-md hover:brightness-150 hover:border-t-4 hover:border-b active:opacity-75 outline-none duration-300 group">
+                        <span className="bg-red-400 shadow-red-400 absolute -top-[150%] left-0 inline-flex w-80 h-[5px] rounded-md opacity-50 group-hover:top-[150%] duration-500 shadow-[0_0_10px_10px_rgba(0,0,0,0.3)]"></span>
+                        Log Out
+                    </button>
+                    </Link>
+                :
+                    <Link to={'signin'}><button className="bg-red-950 text-red-400 border border-red-400 border-b-4 font-medium overflow-hidden relative px-4 py-2 rounded-md hover:brightness-150 hover:border-t-4 hover:border-b active:opacity-75 outline-none duration-300 group">
                     <span className="bg-red-400 shadow-red-400 absolute -top-[150%] left-0 inline-flex w-80 h-[5px] rounded-md opacity-50 group-hover:top-[150%] duration-500 shadow-[0_0_10px_10px_rgba(0,0,0,0.3)]"></span>
-                    Register
+                    Login
                 </button>
-                </Link>
+            </Link>}
+               
+                <h1>{ user && user.email}</h1>
             </div>
         </div>
     );

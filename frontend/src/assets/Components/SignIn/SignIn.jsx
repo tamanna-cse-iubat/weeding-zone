@@ -1,7 +1,29 @@
-import React from 'react';
+import React, { use, useState } from 'react';
 import { Link } from 'react-router';
+import { AuthContext } from '../../../Provider/AuthProvider';
 
 const SignIn = () => {
+    const { signInUser } = use(AuthContext);
+    const [error, seterror] = useState('');
+    const handleLogin = (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const email = form.email.value;
+        const password = form.password.value;
+        signInUser(email, password)
+            .then((result) => {
+            const user = result.user;
+            console.log(user);
+    
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                seterror(errorCode, errorMessage);
+            });
+        console.log({email, password});
+    
+    }
     return (
         <div className='m-auto w-11/12 flex justify-center my-10 '>
 
@@ -16,7 +38,7 @@ const SignIn = () => {
 
                 <div className="capitalize">
                     <p className="text-2xl text-[#7F3D27] pb-5">Sign In Your Account</p>
-                    <form action="" className="flex flex-col gap-3">
+                    <form onSubmit={handleLogin} action="" className="flex flex-col gap-3">
 
 
                         <div className="flex flex-col items-start w-full">
@@ -25,6 +47,7 @@ const SignIn = () => {
                             >
                             <input
                                 type="email"
+                                name='email'
                                 placeholder="Enter Your Email"
                                 className="w-full py-px pl-0 bg-transparent outline-none focus:ring-0 border-0 border-b-2 border-[#7F3D27] placeholder:text-[#A15A3E] focus:outline-none text-[#7F3D27] placeholder:text-xs"
                             />
@@ -36,10 +59,12 @@ const SignIn = () => {
                             >
                             <input
                                 type="password"
+                                name='password'
                                 placeholder="Enter Your Password"
                                 className="w-full py-px pl-0 bg-transparent outline-none focus:ring-0 border-0 border-b-2 border-[#7F3D27] placeholder:text-[#A15A3E] focus:outline-none text-[#7F3D27] placeholder:text-xs"
                             />
                             <p className='text-accent my-2 hover:text-white'><Link to={'/'}>Forgot Password?</Link></p>
+                            <p className='text-red my-2 hover:text-white'><Link to={'/'}>{error }</Link></p>
                         </div>
 
                         <div className="inline-flex gap-5">
@@ -50,7 +75,7 @@ const SignIn = () => {
                                     Register
                                 </button>
                             </Link>
-                            <button
+                            <button type='submit'
                                 className="px-6 focus:outline-none focus:scale-110 font-semibold text-xs py-2 rounded-[5px] hover:scale-110 transition-all hover:transiton text-[#7F3D27] bg-[#D9D9D9] shadow-[#7F3D27] shadow-lg"
                             >
                                 Log In
