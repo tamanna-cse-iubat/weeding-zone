@@ -6,7 +6,8 @@ export const AuthContext = createContext();
 const auth = getAuth(app);
 
 
-const AuthProvider = ({children}) => {
+const AuthProvider = ({ children }) => {
+    const [cart, setCart] = useState([]);
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -41,7 +42,10 @@ const AuthProvider = ({children}) => {
         createUser,
         logOut,
         signInUser,
+        cart,
+        setCart,
     }
+    
     
     return (
         <AuthContext.Provider value={authData}>

@@ -8,7 +8,7 @@
     "occasion": "Wedding",
     "rent_for_days": 3,
     "rent": 12000,
-    "size": "S, M, L",
+    "size": ["S", "M", "L"],
     "stock": 5
   },
     {

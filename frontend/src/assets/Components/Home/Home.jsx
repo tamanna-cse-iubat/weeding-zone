@@ -7,7 +7,7 @@ import Occassioncatagories from '../OccassionCatagories/Occassioncatagories';
 
 const Home = () => {
     const productsData = useLoaderData();
-    console.log(productsData);
+   // console.log(productsData);
   
     return (
         <>

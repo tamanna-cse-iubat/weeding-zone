@@ -1,9 +1,24 @@
-import React from 'react';
-import { Link } from 'react-router';
+import React, { useContext } from 'react';
+
+import { AuthContext } from '../../../Provider/AuthProvider';
+import { Link, useNavigate } from 'react-router';
 
 const ProductCard = ({ product }) => {
-    const { name, photoURL, category, type, occasion, rent_for_days, rent, size, stock } = product;
-    
+    const { id, name, photoURL, category, type, occasion, rent_for_days, rent, size, stock } = product;
+    const { cart, setCart } = useContext(AuthContext);
+    const navigate = useNavigate();
+
+    const handleCart = (cartProduct) => {
+        const exists = cart.find(item => item.id === cartProduct.id);
+
+        if (exists) {
+            alert("Already added to cart");
+            return;
+        }
+
+        setCart(prev => [...prev, cartProduct]);
+        navigate('/cart');
+    };
     return (
         
         <div>
@@ -30,8 +45,8 @@ const ProductCard = ({ product }) => {
                     </div>
 
                     <div className="card-actions justify-end">
-                        <Link to={'/buy'}><button className='btn bg-accent md:btn-sm text-white skeleton'>Rent Now</button></Link>
-                        <Link to={'/cart'}><button className='btn bg-accent md:btn-sm text-white skeleton'>View Details</button></Link>
+                        <button onClick={() => handleCart(product)} className='btn bg-accent md:btn-sm text-white skeleton'>Rent Now</button>
+                        <Link to={`/product/${id}`}><button className='btn bg-accent md:btn-sm text-white skeleton'>View Details</button></Link>
                     </div>
                 </div>
             </div>

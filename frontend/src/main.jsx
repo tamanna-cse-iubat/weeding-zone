@@ -14,6 +14,11 @@ import AuthProvider from './Provider/AuthProvider.jsx'
 import Dashboard from './assets/Components/Dashboard/Dashboard.jsx'
 import PrivateRoute from './Provider/PrivateRoute.jsx'
 
+import ProductsCard from './assets/Components/ProductCard/ProductsCard.jsx'
+import ProductCart from './assets/Components/ProductCart/ProductCart.jsx'
+import ProductDetails from './assets/Components/ProductDetails/ProductDetails.jsx'
+import Checkout from './assets/Components/CheckoutPage/Checkout.jsx'
+
 const router = createBrowserRouter([{
   path: '/',
   Component: Root,
@@ -45,7 +50,33 @@ const router = createBrowserRouter([{
       element: <PrivateRoute>
         <Dashboard></Dashboard>
       </PrivateRoute>,
-    }
+    },
+    {
+      path: '/cart',
+      element: <ProductCart></ProductCart>,
+      loader: async ({ params }) => {
+        const res = await axios.get('/product.json');
+        return res.data.find(
+          (p) => p.id === parseInt(params.id));
+
+      }
+    },
+    {
+      path: '/product/:id',
+      element: <ProductDetails></ProductDetails>,
+      loader: async ({ params }) => {
+        const res = await axios.get('/product.json');
+        return res.data.find(
+          (p) => p.id === parseInt(params.id));
+        
+      }
+    },
+    {
+      path: '/checkout',
+      Component: Checkout,
+      
+    },
+
   ]
 }])
 

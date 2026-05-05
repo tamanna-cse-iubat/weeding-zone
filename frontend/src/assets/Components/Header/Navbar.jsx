@@ -1,7 +1,7 @@
 import React, { use } from 'react';
 import { Link, NavLink } from 'react-router';
 import './Navbar.css'
-import { ShoppingBag } from 'lucide-react';
+import { ShoppingBag, User2Icon } from 'lucide-react';
 import { AuthContext } from '../../../Provider/AuthProvider';
 
 const links = <>
@@ -29,7 +29,7 @@ const links = <>
     <li><NavLink to={'contact'}>Contact Us</NavLink></li>
 </>
 const Navbar = () => {
-    const { user, logOut } = use(AuthContext);
+    const { user, logOut, cart } = use(AuthContext);
     //console.log(user);
 
     const handlelogOut=()=> {
@@ -61,7 +61,16 @@ const Navbar = () => {
                 </ul>
             </div>
             <div className="navbar-end gap-2">
-                <ShoppingBag />
+                
+                
+                
+                    <Link to="/cart" class="relative " ><ShoppingBag />
+                    <div class="badge badge-neutral absolute -top-4 left-2 size-6">{ cart.length}</div>
+                    </Link>
+                    
+                
+                
+                <h1>{user && <User2Icon></User2Icon>}</h1>
                 {user ?  
                     <Link to={'/'}><button onClick={handlelogOut} className="bg-red-950 text-red-400 border border-red-400 border-b-4 font-medium overflow-hidden relative px-4 py-2 rounded-md hover:brightness-150 hover:border-t-4 hover:border-b active:opacity-75 outline-none duration-300 group">
                         <span className="bg-red-400 shadow-red-400 absolute -top-[150%] left-0 inline-flex w-80 h-[5px] rounded-md opacity-50 group-hover:top-[150%] duration-500 shadow-[0_0_10px_10px_rgba(0,0,0,0.3)]"></span>
@@ -75,7 +84,7 @@ const Navbar = () => {
                 </button>
             </Link>}
                
-                <h1>{ user && user.email}</h1>
+                
             </div>
         </div>
     );
