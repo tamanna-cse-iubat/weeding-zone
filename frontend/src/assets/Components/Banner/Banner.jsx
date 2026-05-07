@@ -19,8 +19,9 @@ const Banner = () => {
                     </p>
                     <div className='flex justify-center gap-3'>
                         {/* <button className="btn btn-accent">Explore Bride</button> */}
-                        <Link to={'/bride'}><button className="btn bg-accent md:btn-lg text-white skeleton">Explore Bride</button></Link>
-                        <button className="btn bg-accent md:btn-lg text-white skeleton">Explore Groom</button>
+                        <Link to={'/category/bride'}><button className="btn bg-accent md:btn-lg text-white skeleton">Explore Bride</button></Link>
+                        <Link to={'/category/groom'}><button className="btn bg-accent md:btn-lg text-white skeleton">Explore Groom</button></Link>
+                      
                     </div>
                 </div>
             </div>

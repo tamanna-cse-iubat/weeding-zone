@@ -1,7 +1,7 @@
 import React, { use } from 'react';
 import { Link, NavLink } from 'react-router';
 import './Navbar.css'
-import { ShoppingBag, User2Icon } from 'lucide-react';
+import { Search, ShoppingBag, User2Icon } from 'lucide-react';
 import { AuthContext } from '../../../Provider/AuthProvider';
 
 const links = <>
@@ -53,7 +53,7 @@ const Navbar = () => {
                         {links}
                     </ul>
                 </div>
-                <img src="https://i.ibb.co.com/SzZr84Z/logo.png" alt="" className='md:h-16 h-8' />
+                <Link to={'/'}><img src="https://i.ibb.co.com/SzZr84Z/logo.png" alt="" className='md:h-16 h-8' /></Link>
             </div>
             <div className="navbar-center hidden lg:flex">
                 <ul className="menu menu-horizontal px-1">
@@ -64,13 +64,27 @@ const Navbar = () => {
                 
                 
                 
+                <label className=" w-1/2">
+                    
+                    
+                   
+                    <input
+                        class="bg-zinc-200 text-zinc-600 font-mono ring-1 ring-zinc-400 focus:ring-2 focus:accent outline-none duration-300 placeholder:text-zinc-600 placeholder:opacity-50 rounded-full px-4 py-1 shadow-md focus:shadow-lg focus:shadow-rose-400"
+                        autocomplete="off"
+                        placeholder="Search"
+                        name="text"
+                        type="text"
+                    />
+
+                </label>
+                
                     <Link to="/cart" class="relative " ><ShoppingBag />
                     <div class="badge badge-neutral absolute -top-4 left-2 size-6">{ cart.length}</div>
                     </Link>
                     
                 
                 
-                <h1>{user && <User2Icon></User2Icon>}</h1>
+                <Link to={'/dashboard'}><h1>{user && <User2Icon></User2Icon>}</h1></Link>
                 {user ?  
                     <Link to={'/'}><button onClick={handlelogOut} className="bg-red-950 text-red-400 border border-red-400 border-b-4 font-medium overflow-hidden relative px-4 py-2 rounded-md hover:brightness-150 hover:border-t-4 hover:border-b active:opacity-75 outline-none duration-300 group">
                         <span className="bg-red-400 shadow-red-400 absolute -top-[150%] left-0 inline-flex w-80 h-[5px] rounded-md opacity-50 group-hover:top-[150%] duration-500 shadow-[0_0_10px_10px_rgba(0,0,0,0.3)]"></span>

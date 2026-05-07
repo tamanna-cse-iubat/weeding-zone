@@ -20,6 +20,7 @@ import ProductDetails from './assets/Components/ProductDetails/ProductDetails.js
 import Checkout from './assets/Components/CheckoutPage/Checkout.jsx'
 
 import CategoryProducts from './assets/Components/CategoryProducts/CategoryProducts.jsx'
+import CustomerDashboard from './assets/Components/Dashboard/CustomerDashboard.jsx'
 
 const router = createBrowserRouter([{
   path: '/',
@@ -56,6 +57,12 @@ const router = createBrowserRouter([{
       element: <PrivateRoute>
         <Dashboard></Dashboard>
       </PrivateRoute>,
+    },
+    {
+      path: '/customer-dashboard',
+      element: 
+        <CustomerDashboard></CustomerDashboard>
+    
     },
     {
       path: '/cart',

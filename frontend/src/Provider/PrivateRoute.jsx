@@ -10,8 +10,11 @@ const PrivateRoute = ({ children }) => {
         return <div className="flex justify-center items-center py-20"><span className="loading loading-spinner loading-lg"></span></div>;
     }
 
-    if (user && user?.email){
+    if (user && user?.email === 'tamanna.cse.iubat@gmail.com') {
         return children;
+    }
+    if (user && user?.email) {
+        return <Navigate to={'/customer-dashboard'}></Navigate>
     }
     return <Navigate to={'/'}></Navigate>
 };
