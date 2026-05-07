@@ -19,6 +19,8 @@ import ProductCart from './assets/Components/ProductCart/ProductCart.jsx'
 import ProductDetails from './assets/Components/ProductDetails/ProductDetails.jsx'
 import Checkout from './assets/Components/CheckoutPage/Checkout.jsx'
 
+import CategoryProducts from './assets/Components/CategoryProducts/CategoryProducts.jsx'
+
 const router = createBrowserRouter([{
   path: '/',
   Component: Root,
@@ -42,8 +44,12 @@ const router = createBrowserRouter([{
       Component: SignIn
     },
     {
-      path: '/bride',
-      Component: Bride
+      path: '/category/:categoryName',
+      Component: CategoryProducts,
+      loader: async () => {
+        const res = await axios.get('/product.json');
+        return res.data;
+      },
     },
     {
       path: '/dashboard',

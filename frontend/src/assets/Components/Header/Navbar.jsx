@@ -8,21 +8,21 @@ const links = <>
     <li><NavLink to={'/'}>Home</NavLink></li>
     <li>
         <details>
-            <summary>Bride</summary>
+            <summary><Link to={'/category/bride'}>Bride</Link></summary>
             <ul className="p-2 bg-base-100 w-40 z-1">
-                <li><NavLink to={'lahenga'}>Lahenga</NavLink></li>
-                <li><NavLink to={'shari'}>Shari </NavLink></li>
-                <li><NavLink to={'holud'}>Holud Dress </NavLink></li>
+                <li><NavLink to={'/category/lehenga'}>Lehenga</NavLink></li>
+                <li><NavLink to={'/category/saree'}>Saree </NavLink></li>
+                <li><NavLink to={'/category/gown'}>Gown </NavLink></li>
             </ul>
         </details>
     </li>
     <li>
         <details>
-            <summary>Groom</summary>
+            <summary><Link to={'/category/groom'}>Groom</Link></summary>
             <ul className="p-2 bg-base-100 w-40 z-1">
-                <li><NavLink to={'sherwani'}>Sherwani</NavLink></li>
-                <li><NavLink to={'pagri'}>Pagri</NavLink></li>
-                <li><NavLink to={'nagra'}>Nagra</NavLink></li>
+                <li><NavLink to={'/category/sherwani'}>Sherwani</NavLink></li>
+                <li><NavLink to={'/category/pagri'}>Pagri</NavLink></li>
+                <li><NavLink to={'/category/panjabi'}>Panjabi</NavLink></li>
             </ul>
         </details>
     </li>
