@@ -17,7 +17,7 @@ import {
 } from '@heroicons/react/24/solid';
 
 const Checkout = () => {
-    const { cart, setCart } = useContext(AuthContext);
+    const { cart, setCart, user } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const [paymentMethod, setPaymentMethod] = useState('card');
@@ -34,11 +34,26 @@ const Checkout = () => {
 
     const handlePlaceOrder = (e) => {
         e.preventDefault();
-        // Here you would integrate with your backend to place the order
-        alert("Order placed successfully!");
-        setCart([]);
-        navigate("/dashboard");
+        
+        // Prepare order data
+        const orderData = {
+            orderId: `#WZ${Math.floor(10000 + Math.random() * 90000)}`,
+            customerEmail: user.email,
+            customerName: user.displayName || user.email,
+            date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            items: cart,
+            totalAmount: total,
+            paymentMethod: paymentMethod,
+            status: 'Delivered', // Default for demo
+            timestamp: new Date().getTime()
+        };
 
+        // Save to localStorage
+        const existingOrders = JSON.parse(localStorage.getItem('wedding_orders') || '[]');
+        localStorage.setItem('wedding_orders', JSON.stringify([orderData, ...existingOrders]));
+
+        setCart([]);
+        navigate("/thank-you", { state: { order: orderData } });
     };
 
     return (
@@ -90,19 +105,39 @@ const Checkout = () => {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">First Name</label>
-                                            <input required type="text" className="w-full border border-gray-300 rounded-lg py-2.5 px-4 text-gray-700 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent" placeholder="First Name" />
+                                            <input 
+                                                required 
+                                                type="text" 
+                                                name="firstName"
+                                                className="w-full border border-gray-300 rounded-lg py-2.5 px-4 text-gray-700 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent" 
+                                                defaultValue={user?.displayName ? user.displayName.split(' ')[0] : ''} 
+                                                placeholder="First Name" 
+                                            />
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
-                                            <input required type="text" className="w-full border border-gray-300 rounded-lg py-2.5 px-4 text-gray-700 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent" placeholder="Last Name" />
+                                            <input 
+                                                required 
+                                                type="text" 
+                                                name="lastName"
+                                                className="w-full border border-gray-300 rounded-lg py-2.5 px-4 text-gray-700 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent" 
+                                                defaultValue={user?.displayName && user.displayName.split(' ').length > 1 ? user.displayName.split(' ').slice(1).join(' ') : ''} 
+                                                placeholder="Last Name" 
+                                            />
                                         </div>
                                         <div className="md:col-span-2">
                                             <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                                            <input required type="email" className="w-full border border-gray-300 rounded-lg py-2.5 px-4 text-gray-700 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent" placeholder="example@gmail.com" />
+                                            <input 
+                                                required 
+                                                type="email" 
+                                                name="email"
+                                                className="w-full border border-gray-300 rounded-lg py-2.5 px-4 text-gray-700 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent bg-gray-50" 
+                                                defaultValue={user?.email} 
+                                            />
                                         </div>
                                         <div className="md:col-span-2">
                                             <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-                                            <input required type="tel" className="w-full border border-gray-300 rounded-lg py-2.5 px-4 text-gray-700 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent" placeholder="+880 1XXX XXXXXX" />
+                                            <input required type="tel" name="phone" className="w-full border border-gray-300 rounded-lg py-2.5 px-4 text-gray-700 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent" placeholder="+880 1XXX XXXXXX" />
                                         </div>
                                         <div className="md:col-span-2">
                                             <label className="block text-sm font-medium text-gray-700 mb-2">Street Address</label>

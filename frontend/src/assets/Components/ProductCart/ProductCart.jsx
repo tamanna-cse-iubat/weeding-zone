@@ -21,9 +21,10 @@ import {
     StarIcon as StarBadgeIcon
 } from '@heroicons/react/24/solid';
 
-const CartItem = ({ item, handleRemove }) => {
+const CartItem = ({ item, handleRemove, onDurationSelect }) => {
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
+    const [isSelected, setIsSelected] = useState(false);
 
     // exact code from product details page
     const handleDateChange = (date) => {
@@ -39,7 +40,21 @@ const CartItem = ({ item, handleRemove }) => {
             setEndDate(end.toLocaleDateString('en-GB', options));
         } else {
             setEndDate("");
+            if (isSelected) {
+                setIsSelected(false);
+                onDurationSelect(item.id, false);
+            }
         }
+    };
+
+    const toggleSelection = () => {
+        if (!startDate) {
+            alert("Please select a start date first");
+            return;
+        }
+        const nextState = !isSelected;
+        setIsSelected(nextState);
+        onDurationSelect(item.id, nextState);
     };
 
     return (
@@ -89,7 +104,19 @@ const CartItem = ({ item, handleRemove }) => {
 
                 {/* Rental Duration (exact code from ProductDetails.jsx) */}
                 <div className="mb-4 bg-[#FDFBF7] p-4 rounded-xl border border-[#F2ECE4]">
-                    <p className="text-accent font-bold mb-3">Rental Duration ({item.rent_for_days || 3} Days)</p>
+                    <div className="flex items-center justify-between mb-3">
+                        <p className="text-accent font-bold">Rental Duration ({item.rent_for_days || 3} Days)</p>
+                        <button 
+                            onClick={toggleSelection}
+                            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 ${
+                                isSelected 
+                                ? "bg-accent text-white shadow-md scale-105" 
+                                : "bg-white border border-accent text-accent hover:bg-rose-50"
+                            }`}
+                        >
+                            {isSelected ? "Selected ✓" : "Select Duration"}
+                        </button>
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
                         <div>
                             <label className="block text-sm text-gray-600 mb-1">Start Date</label>
@@ -137,11 +164,23 @@ const CartItem = ({ item, handleRemove }) => {
 const Cart = () => {
     const { cart, setCart } = useContext(AuthContext);
     const navigate = useNavigate();
+    const [selectedDurations, setSelectedDurations] = useState({});
+
+    const handleDurationSelect = (id, isSelected) => {
+        setSelectedDurations(prev => ({
+            ...prev,
+            [id]: isSelected
+        }));
+    };
 
     // remove item
     const handleRemove = (id) => {
         const updated = cart.filter((item) => item.id !== id);
         setCart(updated);
+        // Also remove from selectedDurations
+        const newSelected = { ...selectedDurations };
+        delete newSelected[id];
+        setSelectedDurations(newSelected);
     };
 
     // total price
@@ -153,6 +192,8 @@ const Cart = () => {
     const totalDays = cart.reduce((sum, item) => {
         return sum + (item.rent_for_days || 3);
     }, 0);
+
+    const isAllSelected = cart.length > 0 && cart.every(item => selectedDurations[item.id]);
 
     return (
         <div className="min-h-screen bg-[#fafafa] font-sans pb-16">
@@ -191,7 +232,12 @@ const Cart = () => {
                         {/* LEFT: Cart Items */}
                         <div className="w-full lg:w-2/3 space-y-6">
                             {cart.map((item) => (
-                                <CartItem key={item.id} item={item} handleRemove={handleRemove} />
+                                <CartItem 
+                                    key={item.id} 
+                                    item={item} 
+                                    handleRemove={handleRemove} 
+                                    onDurationSelect={handleDurationSelect}
+                                />
                             ))}
 
                             {/* Continue Shopping */}
@@ -252,12 +298,23 @@ const Cart = () => {
 
                                 <div className="space-y-3">
                                     <button
-                                        onClick={() => navigate("/checkout")}
-                                        className="w-full flex items-center justify-center gap-2 bg-white hover:bg-secondary hover:text-white skeleton text-accent py-3.5 rounded-lg font-bold transition"
+                                        onClick={() => isAllSelected && navigate("/checkout")}
+                                        disabled={!isAllSelected}
+                                        className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-lg font-bold transition ${
+                                            isAllSelected 
+                                            ? "bg-white text-accent hover:bg-secondary hover:text-white cursor-pointer shadow-lg" 
+                                            : "bg-white/20 text-white/50 cursor-not-allowed border border-white/10"
+                                        }`}
                                     >
                                         <LockClosedIcon className="h-5 w-5" />
                                         Proceed to Checkout
                                     </button>
+                                    
+                                    {!isAllSelected && cart.length > 0 && (
+                                        <p className="text-[10px] text-center text-[#F5C518] animate-pulse">
+                                            Please select rental duration for all items to proceed.
+                                        </p>
+                                    )}
                                     
                                     <button
                                         className="w-full flex items-center justify-center gap-2 bg-transparent border border-white text-white hover:bg-secondary py-3.5 rounded-lg font-semibold transition"

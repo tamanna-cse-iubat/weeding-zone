@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../../Provider/AuthProvider';
 import {
     LayoutDashboard,
@@ -18,48 +18,82 @@ import {
     TrendingUp,
     CheckCircle,
     Clock,
-} from 'lucide-react'; // Using Lucide as it's in package.json
+} from 'lucide-react'; 
 import { Link } from 'react-router';
 
 const CustomerDashboard = () => {
-    const { user, logOut } = useContext(AuthContext);
+    const { user, logOut, manageUserProfile } = useContext(AuthContext);
+    const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(true);
+    
+    // Profile Editing State
+    const [isEditing, setIsEditing] = useState(false);
+    const [formData, setFormData] = useState({
+        name: user?.displayName || '',
+        phone: '+880 1712 345678' // Mock phone for now
+    });
+    const [updating, setUpdating] = useState(false);
 
+    useEffect(() => {
+        // Fetch orders from localStorage
+        const allOrders = JSON.parse(localStorage.getItem('wedding_orders') || '[]');
+        // Filter orders for the current user
+        const userOrders = allOrders.filter(order => order.customerEmail === user?.email);
+        setOrders(userOrders);
+        setLoading(false);
+    }, [user]);
+
+    const handleUpdateProfile = async (e) => {
+        e.preventDefault();
+        setUpdating(true);
+        try {
+            await manageUserProfile(formData.name, user?.photoURL);
+            setIsEditing(false);
+            // In a real app, user object would auto-update via AuthProvider's listener
+        } catch (error) {
+            console.error("Failed to update profile:", error);
+            alert("Error updating profile. Please try again.");
+        } finally {
+            setUpdating(false);
+        }
+    };
+
+    // Calculate real stats
     const stats = [
-        { label: 'Total Orders', value: '12', icon: ShoppingBag, color: 'bg-rose-50 text-rose-600' },
-        { label: 'Active Rentals', value: '2', icon: Clock, color: 'bg-blue-50 text-blue-600' },
-        { label: 'Wishlist Items', value: '8', icon: Heart, color: 'bg-purple-50 text-purple-600' },
-        { label: 'Reward Points', value: '350', icon: Award, color: 'bg-amber-50 text-amber-600' },
+        { 
+            label: 'Total Orders', 
+            value: orders.length.toString(), 
+            icon: ShoppingBag, 
+            color: 'bg-rose-50 text-rose-600' 
+        },
+        { 
+            label: 'Active Rentals', 
+            value: orders.filter(o => o.status === 'Active Rental').length.toString(), 
+            icon: Clock, 
+            color: 'bg-blue-50 text-blue-600' 
+        },
+        { 
+            label: 'Wishlist Items', 
+            value: '0', 
+            icon: Heart, 
+            color: 'bg-purple-50 text-purple-600' 
+        },
+        { 
+            label: 'Reward Points', 
+            value: (orders.length * 50).toString(), 
+            icon: Award, 
+            color: 'bg-amber-50 text-amber-600' 
+        },
     ];
 
-    const recentOrders = [
-        {
-            id: '#WZ12345',
-            name: 'Bridal Lehenga',
-            date: 'May 24, 2024',
-            status: 'Delivered',
-            statusColor: 'bg-green-100 text-green-700',
-            price: '৳ 7,500',
-            imageColor: 'bg-rose-100'
-        },
-        {
-            id: '#WZ12344',
-            name: 'Groom Sherwani',
-            date: 'May 20, 2024',
-            status: 'Active Rental',
-            statusColor: 'bg-amber-100 text-amber-700',
-            price: '৳ 6,000',
-            imageColor: 'bg-blue-100'
-        },
-        {
-            id: '#WZ12343',
-            name: 'Bridal Jewelry Set',
-            date: 'May 15, 2024',
-            status: 'Delivered',
-            statusColor: 'bg-green-100 text-green-700',
-            price: '৳ 3,000',
-            imageColor: 'bg-purple-100'
-        },
-    ];
+    const getStatusStyle = (status) => {
+        switch (status) {
+            case 'Delivered': return 'bg-green-100 text-green-700';
+            case 'Active Rental': return 'bg-amber-100 text-amber-700';
+            case 'Pending': return 'bg-blue-100 text-blue-700';
+            default: return 'bg-gray-100 text-gray-700';
+        }
+    };
 
     return (
         <div className="min-h-screen bg-[#FDFBF9] flex flex-col md:flex-row font-sans">
@@ -72,8 +106,8 @@ const CustomerDashboard = () => {
                             <div className="w-16 h-16 rounded-full bg-gray-200 border-2 border-white/20 mb-3 flex items-center justify-center overflow-hidden">
                                 <User className="w-8 h-8 text-gray-400" />
                             </div>
-                            <h3 className="font-bold text-lg">{user?.displayName || 'Ayesha Rahman'}</h3>
-                            <p className="text-white/70 text-xs truncate w-full">{user?.email || 'ayesha@email.com'}</p>
+                            <h3 className="font-bold text-lg">{user?.displayName || 'Guest User'}</h3>
+                            <p className="text-white/70 text-xs truncate w-full">{user?.email || 'guest@example.com'}</p>
                             <div className="mt-3 flex items-center gap-1.5 px-3 py-1 bg-white/10 rounded-full border border-white/10">
                                 <Award className="w-3.5 h-3.5 text-[#D4AF37]" />
                                 <span className="text-[10px] font-semibold text-[#D4AF37] uppercase tracking-wider">Premium Member</span>
@@ -124,7 +158,7 @@ const CustomerDashboard = () => {
                     <div>
                         <p className="text-gray-400 text-xs font-medium uppercase tracking-wider">Welcome back,</p>
                         <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                            {user?.displayName?.split(' ')[0] || 'Ayesha'} Rahman 
+                            {user?.displayName?.split(' ')[0] || 'User'} 
                             <span className="text-[#D4AF37]">✨</span>
                         </h1>
                     </div>
@@ -197,29 +231,44 @@ const CustomerDashboard = () => {
                             </div>
 
                             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                                <div className="divide-y divide-gray-50">
-                                    {recentOrders.map((order, idx) => (
-                                        <div key={idx} className="p-6 flex flex-col sm:flex-row items-center gap-6 hover:bg-gray-50/50 transition">
-                                            <div className={`w-20 h-24 ${order.imageColor} rounded-xl shrink-0 flex items-center justify-center text-white/40`}>
-                                                <ShoppingBag className="w-8 h-8" />
+                                {orders.length === 0 ? (
+                                    <div className="p-12 text-center text-gray-400">
+                                        <ShoppingBag className="w-12 h-12 mx-auto mb-4 opacity-20" />
+                                        <p>No orders found yet.</p>
+                                        <p className="text-xs">Once you place an order, it will appear here.</p>
+                                    </div>
+                                ) : (
+                                    <div className="divide-y divide-gray-50">
+                                        {orders.map((order, idx) => (
+                                            <div key={idx} className="p-6 flex flex-col sm:flex-row items-center gap-6 hover:bg-gray-50/50 transition">
+                                                <div className={`w-20 h-24 bg-rose-50 rounded-xl shrink-0 flex items-center justify-center text-rose-200 overflow-hidden`}>
+                                                    {order.items[0]?.photoURL ? (
+                                                        <img src={order.items[0].photoURL} alt={order.items[0].name} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <ShoppingBag className="w-8 h-8" />
+                                                    )}
+                                                </div>
+                                                <div className="flex-1 space-y-1 text-center sm:text-left">
+                                                    <h4 className="font-bold text-gray-800 text-lg">
+                                                        {order.items[0]?.name || 'Unknown Item'}
+                                                        {order.items.length > 1 && <span className="text-xs text-rose-500 ml-2">+{order.items.length - 1} more</span>}
+                                                    </h4>
+                                                    <p className="text-gray-400 text-sm">Order ID: {order.orderId}</p>
+                                                    <p className="text-gray-400 text-xs">{order.date}</p>
+                                                </div>
+                                                <div className="flex flex-col items-center sm:items-end gap-3">
+                                                    <span className={`px-4 py-1.5 rounded-full text-xs font-bold ${getStatusStyle(order.status)}`}>
+                                                        {order.status}
+                                                    </span>
+                                                    <span className="font-bold text-gray-800">৳ {order.totalAmount.toLocaleString()}</span>
+                                                    <button className="px-4 py-2 border border-rose-200 text-rose-600 rounded-xl text-sm font-bold hover:bg-rose-50 transition">
+                                                        View Details
+                                                    </button>
+                                                </div>
                                             </div>
-                                            <div className="flex-1 space-y-1 text-center sm:text-left">
-                                                <h4 className="font-bold text-gray-800 text-lg">{order.name}</h4>
-                                                <p className="text-gray-400 text-sm">Order ID: {order.id}</p>
-                                                <p className="text-gray-400 text-xs">{order.date}</p>
-                                            </div>
-                                            <div className="flex flex-col items-center sm:items-end gap-3">
-                                                <span className={`px-4 py-1.5 rounded-full text-xs font-bold ${order.statusColor}`}>
-                                                    {order.status}
-                                                </span>
-                                                <span className="font-bold text-gray-800">{order.price}</span>
-                                                <button className="px-4 py-2 border border-rose-200 text-rose-600 rounded-xl text-sm font-bold hover:bg-rose-50 transition">
-                                                    View Details
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -228,24 +277,79 @@ const CustomerDashboard = () => {
                             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-6 relative overflow-hidden">
                                 <div className="flex items-center justify-between">
                                     <h3 className="font-bold text-gray-800">Profile Summary</h3>
-                                    <button className="text-rose-600 text-xs font-bold hover:underline flex items-center gap-1">
-                                        <TrendingUp className="w-3 h-3" /> Edit Profile
-                                    </button>
+                                    {!isEditing && (
+                                        <button 
+                                            onClick={() => setIsEditing(true)}
+                                            className="text-rose-600 text-xs font-bold hover:underline flex items-center gap-1"
+                                        >
+                                            <TrendingUp className="w-3 h-3" /> Edit Profile
+                                        </button>
+                                    )}
                                 </div>
                                 
-                                <div className="space-y-4">
-                                    {[
-                                        { label: 'Name', value: user?.displayName || 'Ayesha Rahman' },
-                                        { label: 'Email', value: user?.email || 'ayesha@email.com' },
-                                        { label: 'Phone', value: '+880 1712 345678' },
-                                        { label: 'Member Since', value: 'May 10, 2024' },
-                                    ].map((info, idx) => (
-                                        <div key={idx}>
-                                            <p className="text-gray-400 text-[10px] uppercase tracking-wider font-bold">{info.label}</p>
-                                            <p className="text-gray-800 text-sm font-medium mt-0.5">{info.value}</p>
+                                <form onSubmit={handleUpdateProfile} className="space-y-4">
+                                    <div>
+                                        <p className="text-gray-400 text-[10px] uppercase tracking-wider font-bold mb-1">Name</p>
+                                        {isEditing ? (
+                                            <input 
+                                                type="text" 
+                                                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-rose-300"
+                                                value={formData.name}
+                                                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                                required
+                                            />
+                                        ) : (
+                                            <p className="text-gray-800 text-sm font-medium">{user?.displayName || 'N/A'}</p>
+                                        )}
+                                    </div>
+
+                                    <div>
+                                        <p className="text-gray-400 text-[10px] uppercase tracking-wider font-bold mb-1">Email</p>
+                                        <p className="text-gray-500 text-sm font-medium">{user?.email || 'N/A'}</p>
+                                        {isEditing && <p className="text-[10px] text-gray-400 italic mt-1">Email cannot be changed.</p>}
+                                    </div>
+
+                                    <div>
+                                        <p className="text-gray-400 text-[10px] uppercase tracking-wider font-bold mb-1">Phone</p>
+                                        {isEditing ? (
+                                            <input 
+                                                type="text" 
+                                                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-rose-300"
+                                                value={formData.phone}
+                                                onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                                            />
+                                        ) : (
+                                            <p className="text-gray-800 text-sm font-medium">{formData.phone}</p>
+                                        )}
+                                    </div>
+
+                                    <div>
+                                        <p className="text-gray-400 text-[10px] uppercase tracking-wider font-bold mb-1">Member Since</p>
+                                        <p className="text-gray-800 text-sm font-medium">May 10, 2024</p>
+                                    </div>
+
+                                    {isEditing && (
+                                        <div className="flex gap-2 pt-2">
+                                            <button 
+                                                type="submit"
+                                                disabled={updating}
+                                                className="flex-1 bg-rose-600 text-white text-xs font-bold py-2 rounded-lg hover:bg-rose-700 transition disabled:opacity-50"
+                                            >
+                                                {updating ? 'Saving...' : 'Save Changes'}
+                                            </button>
+                                            <button 
+                                                type="button"
+                                                onClick={() => {
+                                                    setIsEditing(false);
+                                                    setFormData({ name: user?.displayName || '', phone: '+880 1712 345678' });
+                                                }}
+                                                className="flex-1 bg-gray-100 text-gray-600 text-xs font-bold py-2 rounded-lg hover:bg-gray-200 transition"
+                                            >
+                                                Cancel
+                                            </button>
                                         </div>
-                                    ))}
-                                </div>
+                                    )}
+                                </form>
                                 
                                 {/* Decorative floral pattern placeholder */}
                                 <div className="absolute bottom-0 right-0 w-24 h-24 opacity-5 pointer-events-none">

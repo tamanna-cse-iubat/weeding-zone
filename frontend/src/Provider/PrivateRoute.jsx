@@ -4,19 +4,20 @@ import { Navigate } from 'react-router';
 
 const PrivateRoute = ({ children }) => {
     const { user, loading } = useContext(AuthContext);
-    console.log(user);
     
     if (loading) {
         return <div className="flex justify-center items-center py-20"><span className="loading loading-spinner loading-lg"></span></div>;
     }
 
-    if (user && user?.email === 'tamanna.cse.iubat@gmail.com') {
+    if (user && user?.email==='tamanna.cse.iubat@gmail.com') {
         return children;
     }
+
     if (user && user?.email) {
-        return <Navigate to={'/customer-dashboard'}></Navigate>
+        return children;
     }
-    return <Navigate to={'/'}></Navigate>
+
+    return <Navigate to={'/signin'}></Navigate>
 };
 
 export default PrivateRoute;

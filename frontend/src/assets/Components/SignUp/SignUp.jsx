@@ -9,7 +9,7 @@ const SignUp = () => {
 
     useEffect(() => {
         if (user) {
-            navigate('/dashboard');
+            navigate('/');
         }
     }, [user, navigate]);
 
@@ -24,7 +24,7 @@ const SignUp = () => {
             .then((result) => {
                 const user = result.user;
                 setUser(user);
-                navigate('/dashboard');
+                navigate('/');
             }).catch((error) => {
                 const errorCode = error.code;
                 const errorMassage = error.massage;

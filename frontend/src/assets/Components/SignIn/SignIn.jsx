@@ -1,17 +1,38 @@
-import React, { use, useState, useEffect } from 'react';
+import React, { use, useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { AuthContext } from '../../../Provider/AuthProvider';
 
 const SignIn = () => {
-    const { signInUser, user } = use(AuthContext);
+    const { signInUser, user, resetPassword } = use(AuthContext);
     const [error, seterror] = useState('');
+    const [success, setSuccess] = useState('');
     const navigate = useNavigate();
+    const emailRef = useRef();
 
     useEffect(() => {
         if (user) {
-            navigate('/dashboard');
+            navigate('/');
         }
     }, [user, navigate]);
+
+    const handleReset = (e) => {
+        e.preventDefault();
+        const email = emailRef.current.value;
+        if (!email) {
+            seterror('Please enter your email address first.');
+            return;
+        }
+        seterror('');
+        resetPassword(email)
+            .then(() => {
+                setSuccess('Password reset email sent! Check your inbox.');
+                seterror('');
+            })
+            .catch((error) => {
+                seterror(error.message);
+                setSuccess('');
+            });
+    }
 
     const handleLogin = (e) => {
         e.preventDefault();
@@ -22,7 +43,7 @@ const SignIn = () => {
             .then((result) => {
             const user = result.user;
             console.log(user);
-            navigate('/dashboard');
+            navigate('/');
             })
             .catch((error) => {
                 const errorCode = error.code;
@@ -56,6 +77,7 @@ const SignIn = () => {
                             <input
                                 type="email"
                                 name='email'
+                                ref={emailRef}
                                 placeholder="Enter Your Email"
                                 className="w-full py-px pl-0 bg-transparent outline-none focus:ring-0 border-0 border-b-2 border-[#7F3D27] placeholder:text-[#A15A3E] focus:outline-none text-[#7F3D27] placeholder:text-xs"
                             />
@@ -71,8 +93,9 @@ const SignIn = () => {
                                 placeholder="Enter Your Password"
                                 className="w-full py-px pl-0 bg-transparent outline-none focus:ring-0 border-0 border-b-2 border-[#7F3D27] placeholder:text-[#A15A3E] focus:outline-none text-[#7F3D27] placeholder:text-xs"
                             />
-                            <p className='text-accent my-2 hover:text-white'><Link to={'/'}>Forgot Password?</Link></p>
-                            <p className='text-red my-2 hover:text-white'><Link to={'/'}>{error }</Link></p>
+                            <button onClick={handleReset} className='text-accent my-2 hover:text-white text-xs text-left'>Forgot Password?</button>
+                            {error && <p className='text-red-600 text-xs my-1'>{error}</p>}
+                            {success && <p className='text-green-700 text-xs my-1'>{success}</p>}
                         </div>
 
                         <div className="inline-flex gap-5">

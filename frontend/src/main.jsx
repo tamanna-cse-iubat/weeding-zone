@@ -21,6 +21,7 @@ import Checkout from './assets/Components/CheckoutPage/Checkout.jsx'
 
 import CategoryProducts from './assets/Components/CategoryProducts/CategoryProducts.jsx'
 import CustomerDashboard from './assets/Components/Dashboard/CustomerDashboard.jsx'
+import ThankYou from './assets/Components/CheckoutPage/ThankYou.jsx'
 
 const router = createBrowserRouter([{
   path: '/',
@@ -60,9 +61,9 @@ const router = createBrowserRouter([{
     },
     {
       path: '/customer-dashboard',
-      element: 
+      element: <PrivateRoute>
         <CustomerDashboard></CustomerDashboard>
-    
+      </PrivateRoute>
     },
     {
       path: '/cart',
@@ -86,8 +87,13 @@ const router = createBrowserRouter([{
     },
     {
       path: '/checkout',
-      Component: Checkout,
-      
+      element: <PrivateRoute>
+        <Checkout></Checkout>
+      </PrivateRoute>
+    },
+    {
+      path: '/thank-you',
+      element: <ThankYou></ThankYou>
     },
 
   ]
