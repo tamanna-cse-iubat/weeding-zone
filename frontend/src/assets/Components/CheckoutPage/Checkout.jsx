@@ -259,6 +259,7 @@ const Checkout = () => {
                                             <img src={item.photoURL} alt={item.name} className="w-12 h-12 rounded object-cover border border-[#8A2B3B]" />
                                             <div className="flex-1">
                                                 <p className="text-sm font-medium line-clamp-1">{item.name}</p>
+                                                <p className="text-[10px] text-white/70">Size: {item.selectedSize || 'Standard'}</p>
                                                 <p className="text-xs text-[#C2A3A9]">৳ {item.rent.toLocaleString()} x {item.rent_for_days || 3} Days</p>
                                             </div>
                                             <div className="text-sm font-bold text-[#F5C518]">

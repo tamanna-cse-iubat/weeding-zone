@@ -76,7 +76,7 @@ const Dashboard = () => {
     const totalRevenue = allOrders.reduce((sum, order) => sum + order.totalAmount, 0);
     const totalRentals = allOrders.length;
     const activeCustomers = new Set(allOrders.map(o => o.customerEmail)).size;
-    const avgRating = "4.9 / 5"; // Placeholder for now
+    // const avgRating = "4.9 / 5"; // Placeholder for now
 
     // Get Top Products
     const productStats = {};
@@ -143,7 +143,7 @@ const Dashboard = () => {
                         { icon: Home, label: 'Overview', active: true, to: '/dashboard' },
                         { icon: ShoppingCart, label: 'Cart', active: false, to: '/cart' },
                         { icon: ClipboardList, label: 'Orders', active: false, to: '/dashboard' },
-                        { icon: ShoppingBag, label: 'Products', active: false, to: '/' },
+                        { icon: ShoppingBag, label: 'Products', active: false, to: '/admin/inventory' },
                         { icon: Heart, label: 'Wishlist', active: false, to: '/wishlist' },
                     ].map((item) => (
                         <Link
@@ -240,7 +240,7 @@ const Dashboard = () => {
 
 
                     {/* Stat Cards */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
                         <StatCard
                             icon={Banknote}
                             label="Total Revenue"
@@ -265,14 +265,14 @@ const Dashboard = () => {
                             changeType="up"
                             color="bg-indigo-500"
                         />
-                        <StatCard
+                        {/* <StatCard
                             icon={Star}
                             label="Avg. Rating"
                             value={avgRating}
                             change="+0.3"
                             changeType="up"
                             color="bg-emerald-500"
-                        />
+                        /> */}
                     </div>
 
 
@@ -423,7 +423,7 @@ const Dashboard = () => {
                             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                                 <h2 className="font-bold text-gray-800 mb-4">Quick Actions</h2>
                                 <div className="space-y-3">
-                                    <Link to="/" className="flex items-center gap-3 p-3 rounded-xl hover:bg-[#FDFBF7] border border-gray-100 transition">
+                                    <Link to="/admin/inventory" className="flex items-center gap-3 p-3 rounded-xl hover:bg-[#FDFBF7] border border-gray-100 transition">
                                         <ShoppingBag className="h-5 w-5 text-[#6A0D25]" />
                                         <span className="text-sm font-medium text-gray-700">Browse Products</span>
                                         <ChevronRight className="h-4 w-4 text-gray-400 ml-auto" />

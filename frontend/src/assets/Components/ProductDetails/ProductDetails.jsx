@@ -58,7 +58,7 @@ const ProductDetails = () => {
             return;
         }
 
-        setCart(prev => [...prev, cartProduct]);
+        setCart(prev => [...prev, { ...cartProduct, selectedSize }]);
         navigate('/cart');
     };
 

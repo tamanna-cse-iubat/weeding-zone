@@ -80,22 +80,31 @@ const Navbar = () => {
                 
                 
                 
-                <label className=" w-1/2">
-                    
-                    
-                   
-                    <input
-                        className="bg-zinc-200 text-zinc-600 font-mono ring-1 ring-zinc-400 focus:ring-2 focus:accent outline-none duration-300 placeholder:text-zinc-600 placeholder:opacity-50 rounded-full px-4 py-1 shadow-md focus:shadow-lg focus:shadow-rose-400 w-full"
-                        autoComplete="off"
-                        placeholder="Search outfits..."
-                        name="text"
-                        type="text"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        onKeyDown={handleSearch}
-                    />
+                {/* Expandable Search Box */}
+                <div className="group flex items-center relative">
+                    <div className="flex items-center bg-zinc-100 border border-zinc-300 rounded-full overflow-hidden
+                        w-9 hover:w-52 focus-within:w-52
+                        transition-all duration-400 ease-in-out
+                        shadow-sm hover:shadow-md hover:shadow-rose-200 focus-within:shadow-md focus-within:shadow-rose-200">
+                        <span className="flex-shrink-0 pl-2.5 pr-1 text-zinc-500">
+                            <Search className="size-4" />
+                        </span>
+                        <input
+                            className="bg-transparent text-zinc-700 font-mono outline-none placeholder:text-zinc-400 placeholder:text-xs
+                                w-0 group-hover:w-full focus:w-full
+                                transition-all duration-400 ease-in-out
+                                pr-3 py-1.5 text-sm"
+                            autoComplete="off"
+                            placeholder="Search outfits..."
+                            name="text"
+                            type="text"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onKeyDown={handleSearch}
+                        />
+                    </div>
+                </div>
 
-                </label>
                 
                 <Link to="/wishlist" className="relative group p-2 rounded-full hover:bg-gray-100 transition-colors">
                     <Heart className="size-6 text-gray-700 group-hover:text-accent transition-colors" />

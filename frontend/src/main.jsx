@@ -24,6 +24,18 @@ import CustomerDashboard from './assets/Components/Dashboard/CustomerDashboard.j
 import ThankYou from './assets/Components/CheckoutPage/ThankYou.jsx'
 import Wishlist from './assets/Components/Wishlilist/Wishlist.jsx'
 import SearchResults from './assets/Components/CategoryProducts/SearchResults.jsx'
+import InventoryManagement from './assets/Components/Dashboard/InventoryManagement.jsx'
+import AdminRoute from './Provider/AdminRoute.jsx'
+
+const productLoader = async () => {
+  const savedProducts = localStorage.getItem('managed_products');
+  if (savedProducts) {
+    return JSON.parse(savedProducts);
+  }
+  const res = await axios.get('/product.json');
+  localStorage.setItem('managed_products', JSON.stringify(res.data));
+  return res.data;
+};
 
 const router = createBrowserRouter([{
   path: '/',
@@ -33,10 +45,7 @@ const router = createBrowserRouter([{
     {
       index: true,
       Component: Home,
-      loader: async () => {
-        const res = await axios.get('/product.json');
-        return res.data;
-      },
+      loader: productLoader,
       
     },
     {
@@ -50,10 +59,7 @@ const router = createBrowserRouter([{
     {
       path: '/category/:categoryName',
       Component: CategoryProducts,
-      loader: async () => {
-        const res = await axios.get('/product.json');
-        return res.data;
-      },
+      loader: productLoader,
     },
     {
       path: '/dashboard',
@@ -71,20 +77,16 @@ const router = createBrowserRouter([{
       path: '/cart',
       element: <ProductCart></ProductCart>,
       loader: async ({ params }) => {
-        const res = await axios.get('/product.json');
-        return res.data.find(
-          (p) => p.id === parseInt(params.id));
-
+        const data = await productLoader();
+        return data.find((p) => p.id === parseInt(params.id));
       }
     },
     {
       path: '/product/:id',
       element: <ProductDetails></ProductDetails>,
       loader: async ({ params }) => {
-        const res = await axios.get('/product.json');
-        return res.data.find(
-          (p) => p.id === parseInt(params.id));
-        
+        const data = await productLoader();
+        return data.find((p) => p.id === parseInt(params.id));
       }
     },
     {
@@ -104,11 +106,13 @@ const router = createBrowserRouter([{
     {
       path: '/search/:query',
       Component: SearchResults,
-      loader: async () => {
-        const res = await axios.get('/product.json');
-        return res.data;
-      }
+      loader: productLoader,
+    },
+    {
+      path: '/admin/inventory',
+      element: <AdminRoute><InventoryManagement /></AdminRoute>
     }
+    
 
   ]
 }])

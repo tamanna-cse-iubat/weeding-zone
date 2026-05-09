@@ -22,7 +22,7 @@ import {
     StarIcon as StarBadgeIcon
 } from '@heroicons/react/24/solid';
 
-const CartItem = ({ item, handleRemove, onDurationSelect }) => {
+const CartItem = ({ item, handleRemove, onDurationSelect, onSizeChange }) => {
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [isSelected, setIsSelected] = useState(false);
@@ -103,7 +103,22 @@ const CartItem = ({ item, handleRemove, onDurationSelect }) => {
                         </div>
                         <div className="flex items-center gap-1.5 mt-1 w-full sm:w-auto">
                             <RectangleGroupIcon className="h-4 w-4 text-[#B88E2F]" />
-                            <span>Size: {item.size && item.size.length > 0 ? item.size[0] : 'Free Size'}</span>
+                            <div className="flex items-center gap-2">
+                                <span>Size:</span>
+                                <select 
+                                    value={item.selectedSize || (item.size && item.size.length > 0 ? item.size[0] : 'Free Size')}
+                                    onChange={(e) => onSizeChange(item.id, e.target.value)}
+                                    className="bg-gray-50 border border-gray-200 rounded px-2 py-0.5 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-accent/20 cursor-pointer"
+                                >
+                                    {item.size && item.size.length > 0 ? (
+                                        item.size.map(s => (
+                                            <option key={s} value={s}>{s}</option>
+                                        ))
+                                    ) : (
+                                        <option value="Free Size">Free Size</option>
+                                    )}
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -179,6 +194,12 @@ const Cart = () => {
         }));
     };
 
+    const handleSizeChange = (id, newSize) => {
+        setCart(prev => prev.map(item => 
+            item.id === id ? { ...item, selectedSize: newSize } : item
+        ));
+    };
+
     // remove item
     const handleRemove = (id) => {
         const updated = cart.filter((item) => item.id !== id);
@@ -243,6 +264,7 @@ const Cart = () => {
                                     item={item} 
                                     handleRemove={handleRemove} 
                                     onDurationSelect={handleDurationSelect}
+                                    onSizeChange={handleSizeChange}
                                 />
                             ))}
 
