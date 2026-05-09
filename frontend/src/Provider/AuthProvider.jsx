@@ -1,13 +1,13 @@
 import React, { createContext, useEffect, useState } from 'react';
 import app from '../assets/Firebase/firebase.config';
-import { 
-    createUserWithEmailAndPassword, 
-    getAuth, 
-    onAuthStateChanged, 
-    sendPasswordResetEmail, 
-    signInWithEmailAndPassword, 
+import {
+    createUserWithEmailAndPassword,
+    getAuth,
+    onAuthStateChanged,
+    sendPasswordResetEmail,
+    signInWithEmailAndPassword,
     signOut,
-    updateProfile 
+    updateProfile
 } from "firebase/auth";
 
 export const AuthContext = createContext();
@@ -49,26 +49,46 @@ const AuthProvider = ({ children }) => {
     }
 
     useEffect(() => {
-       const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
             setLoading(false);
-       })
+        })
         return () => {
             unsubscribe();
         }
     }, [])
 
-    const logOut=() => {
+    const logOut = () => {
         setLoading(true);
         return signOut(auth);
     }
-    const manageUserProfile = (name, photo) => {
+
+    const manageUserProfile = (name, photo, phone) => {
         setLoading(true);
-        return updateProfile(auth.currentUser, {
+        // Update Firebase profile
+        updateProfile(auth.currentUser, {
             displayName: name,
             photoURL: photo
         });
-    }
+
+        // Save phone and other details to localStorage
+        if (user?.email) {
+            const userProfile = {
+                email: user.email,
+                phone: phone || '',
+                name: name,
+                memberSince: localStorage.getItem(`user_memberSince_${user.email}`) || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+            };
+            localStorage.setItem(`user_profile_${user.email}`, JSON.stringify(userProfile));
+        }
+    };
+
+    // Get user profile data from localStorage
+    const getUserProfile = () => {
+        if (!user?.email) return null;
+        const stored = localStorage.getItem(`user_profile_${user.email}`);
+        return stored ? JSON.parse(stored) : null;
+    };
 
     const authData = {
         user,
@@ -82,10 +102,11 @@ const AuthProvider = ({ children }) => {
         wishlist,
         setWishlist,
         resetPassword,
-        manageUserProfile
+        manageUserProfile,
+        getUserProfile
     }
-    
-    
+
+
     return (
         <AuthContext.Provider value={authData}>
             {children}

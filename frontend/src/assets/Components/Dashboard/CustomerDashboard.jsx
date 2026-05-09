@@ -19,21 +19,51 @@ import {
     TrendingUp,
     CheckCircle,
     Clock,
-} from 'lucide-react'; 
+} from 'lucide-react';
 import { Link } from 'react-router';
 
 const CustomerDashboard = () => {
-    const { user, logOut, manageUserProfile, wishlist } = useContext(AuthContext);
+    const { user, logOut, manageUserProfile, getUserProfile, wishlist } = useContext(AuthContext);
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
-    
+
     // Profile Editing State
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({
         name: user?.displayName || '',
-        phone: '+880 1712 345678' // Mock phone for now
+        phone: ''
     });
+    const [userProfile, setUserProfile] = useState(null);
     const [updating, setUpdating] = useState(false);
+
+    // Initialize user profile data
+    useEffect(() => {
+        if (user?.email) {
+            const profile = getUserProfile();
+            if (profile) {
+                setUserProfile(profile);
+                setFormData({
+                    name: profile.name || user?.displayName || '',
+                    phone: profile.phone || ''
+                });
+            } else {
+                // Create new profile on first visit
+                const newProfile = {
+                    email: user.email,
+                    phone: '',
+                    name: user?.displayName || '',
+                    memberSince: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+                };
+                localStorage.setItem(`user_memberSince_${user.email}`, newProfile.memberSince);
+                localStorage.setItem(`user_profile_${user.email}`, JSON.stringify(newProfile));
+                setUserProfile(newProfile);
+                setFormData({
+                    name: newProfile.name,
+                    phone: newProfile.phone
+                });
+            }
+        }
+    }, [user, getUserProfile]);
 
     const loadOrders = () => {
         const allOrders = JSON.parse(localStorage.getItem('wedding_orders') || '[]');
@@ -53,9 +83,27 @@ const CustomerDashboard = () => {
         e.preventDefault();
         setUpdating(true);
         try {
-            await manageUserProfile(formData.name, user?.photoURL);
+            // Update Firebase profile with name
+            await manageUserProfile(formData.name, user?.photoURL, formData.phone);
+
+            // Update local state
+            const updatedProfile = {
+                email: user?.email,
+                name: formData.name,
+                phone: formData.phone,
+                memberSince: userProfile?.memberSince || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+            };
+            localStorage.setItem(`user_profile_${user?.email}`, JSON.stringify(updatedProfile));
+            setUserProfile(updatedProfile);
             setIsEditing(false);
-            // In a real app, user object would auto-update via AuthProvider's listener
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Profile Updated',
+                text: 'Your profile has been updated successfully.',
+                timer: 1500,
+                showConfirmButton: false
+            });
         } catch (error) {
             console.error("Failed to update profile:", error);
             Swal.fire({
@@ -71,40 +119,40 @@ const CustomerDashboard = () => {
 
     // Calculate real stats
     const stats = [
-        { 
-            label: 'Total Orders', 
-            value: orders.length.toString(), 
-            icon: ShoppingBag, 
-            color: 'bg-rose-50 text-rose-600' 
+        {
+            label: 'Total Orders',
+            value: orders.length.toString(),
+            icon: ShoppingBag,
+            color: 'bg-rose-50 text-rose-600'
         },
-        { 
-            label: 'Active Rentals', 
-            value: orders.filter(o => ['Confirmed', 'Shipped'].includes(o.status)).length.toString(), 
-            icon: Clock, 
-            color: 'bg-blue-50 text-blue-600' 
+        {
+            label: 'Active Rentals',
+            value: orders.filter(o => ['Confirmed', 'Shipped'].includes(o.status)).length.toString(),
+            icon: Clock,
+            color: 'bg-blue-50 text-blue-600'
         },
-        { 
-            label: 'Wishlist Items', 
-            value: wishlist.length.toString(), 
-            icon: Heart, 
-            color: 'bg-purple-50 text-purple-600' 
+        {
+            label: 'Wishlist Items',
+            value: wishlist.length.toString(),
+            icon: Heart,
+            color: 'bg-purple-50 text-purple-600'
         },
-        { 
-            label: 'Reward Points', 
-            value: (orders.length * 50).toString(), 
-            icon: Award, 
-            color: 'bg-amber-50 text-amber-600' 
+        {
+            label: 'Reward Points',
+            value: (orders.length * 50).toString(),
+            icon: Award,
+            color: 'bg-amber-50 text-amber-600'
         },
     ];
 
     const getStatusStyle = (status) => {
         switch (status) {
-            case 'Pending':   return 'bg-yellow-100 text-yellow-700';
+            case 'Pending': return 'bg-yellow-100 text-yellow-700';
             case 'Confirmed': return 'bg-blue-100 text-blue-700';
-            case 'Shipped':   return 'bg-purple-100 text-purple-700';
+            case 'Shipped': return 'bg-purple-100 text-purple-700';
             case 'Delivered': return 'bg-green-100 text-green-700';
             case 'Cancelled': return 'bg-red-100 text-red-600';
-            default:          return 'bg-gray-100 text-gray-700';
+            default: return 'bg-gray-100 text-gray-700';
         }
     };
 
@@ -135,27 +183,26 @@ const CustomerDashboard = () => {
                         { icon: ShoppingBag, label: 'My Orders', to: '/customer-dashboard' },
                         { icon: History, label: 'My Rentals', to: '/customer-dashboard' },
                         { icon: Heart, label: 'Wishlist', to: '/wishlist' },
-                        { icon: User, label: 'My Profile', to: '/customer-dashboard' },
-                        { icon: MapPin, label: 'Address Book', to: '/customer-dashboard' },
-                        { icon: CreditCard, label: 'Payment Methods', to: '/customer-dashboard' },
-                        { icon: Bell, label: 'Notifications', to: '/customer-dashboard' },
+                        // { icon: User, label: 'My Profile', to: '/customer-dashboard' },
+                        // { icon: MapPin, label: 'Address Book', to: '/customer-dashboard' },
+                        // { icon: CreditCard, label: 'Payment Methods', to: '/customer-dashboard' },
+                        // { icon: Bell, label: 'Notifications', to: '/customer-dashboard' },
                         { icon: LifeBuoy, label: 'Support', to: 'https://wa.me/+8801816697212' },
                     ].map((item, idx) => (
                         <Link
                             key={idx}
                             to={item.to}
-                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
-                                item.active 
-                                ? 'bg-rose-50 text-[#4A0E0E] font-semibold' 
-                                : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'
-                            }`}
+                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${item.active
+                                    ? 'bg-rose-50 text-[#4A0E0E] font-semibold'
+                                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'
+                                }`}
                         >
                             <item.icon className={`w-5 h-5 ${item.active ? 'text-[#4A0E0E]' : 'text-gray-400'}`} />
                             <span className="text-sm">{item.label}</span>
                         </Link>
                     ))}
-                    
-                    <button 
+
+                    <button
                         onClick={logOut}
                         className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-rose-600 hover:bg-rose-50 transition-all mt-4"
                     >
@@ -172,17 +219,17 @@ const CustomerDashboard = () => {
                     <div>
                         <p className="text-gray-400 text-xs font-medium uppercase tracking-wider">Welcome back,</p>
                         <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                            {user?.displayName?.split(' ')[0] || 'User'} 
+                            {user?.displayName?.split(' ')[0] || 'User'}
                             <span className="text-[#D4AF37]">✨</span>
                         </h1>
                     </div>
-                    
+
                     <div className="flex items-center gap-4">
                         <div className="hidden md:flex items-center gap-2 bg-gray-50 border border-gray-100 rounded-full px-4 py-2">
                             <Search className="w-4 h-4 text-gray-400" />
-                            <input 
-                                type="text" 
-                                placeholder="Search outfits..." 
+                            <input
+                                type="text"
+                                placeholder="Search outfits..."
                                 className="bg-transparent border-none focus:ring-0 text-sm w-48"
                             />
                         </div>
@@ -292,7 +339,7 @@ const CustomerDashboard = () => {
                                 <div className="flex items-center justify-between">
                                     <h3 className="font-bold text-gray-800">Profile Summary</h3>
                                     {!isEditing && (
-                                        <button 
+                                        <button
                                             onClick={() => setIsEditing(true)}
                                             className="text-rose-600 text-xs font-bold hover:underline flex items-center gap-1"
                                         >
@@ -300,16 +347,16 @@ const CustomerDashboard = () => {
                                         </button>
                                     )}
                                 </div>
-                                
+
                                 <form onSubmit={handleUpdateProfile} className="space-y-4">
                                     <div>
                                         <p className="text-gray-400 text-[10px] uppercase tracking-wider font-bold mb-1">Name</p>
                                         {isEditing ? (
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-rose-300"
                                                 value={formData.name}
-                                                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                                 required
                                             />
                                         ) : (
@@ -326,36 +373,40 @@ const CustomerDashboard = () => {
                                     <div>
                                         <p className="text-gray-400 text-[10px] uppercase tracking-wider font-bold mb-1">Phone</p>
                                         {isEditing ? (
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="tel"
+                                                placeholder="01XXXXXXXXX"
                                                 className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-rose-300"
                                                 value={formData.phone}
-                                                onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                                                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                             />
                                         ) : (
-                                            <p className="text-gray-800 text-sm font-medium">{formData.phone}</p>
+                                            <p className="text-gray-800 text-sm font-medium">{userProfile?.phone || formData.phone || 'Not provided'}</p>
                                         )}
                                     </div>
 
                                     <div>
                                         <p className="text-gray-400 text-[10px] uppercase tracking-wider font-bold mb-1">Member Since</p>
-                                        <p className="text-gray-800 text-sm font-medium">May 10, 2024</p>
+                                        <p className="text-gray-800 text-sm font-medium">{userProfile?.memberSince || 'N/A'}</p>
                                     </div>
 
                                     {isEditing && (
                                         <div className="flex gap-2 pt-2">
-                                            <button 
+                                            <button
                                                 type="submit"
                                                 disabled={updating}
                                                 className="flex-1 bg-rose-600 text-white text-xs font-bold py-2 rounded-lg hover:bg-rose-700 transition disabled:opacity-50"
                                             >
                                                 {updating ? 'Saving...' : 'Save Changes'}
                                             </button>
-                                            <button 
+                                            <button
                                                 type="button"
                                                 onClick={() => {
                                                     setIsEditing(false);
-                                                    setFormData({ name: user?.displayName || '', phone: '+880 1712 345678' });
+                                                    setFormData({
+                                                        name: userProfile?.name || user?.displayName || '',
+                                                        phone: userProfile?.phone || ''
+                                                    });
                                                 }}
                                                 className="flex-1 bg-gray-100 text-gray-600 text-xs font-bold py-2 rounded-lg hover:bg-gray-200 transition"
                                             >
@@ -364,7 +415,7 @@ const CustomerDashboard = () => {
                                         </div>
                                     )}
                                 </form>
-                                
+
                                 {/* Decorative floral pattern placeholder */}
                                 <div className="absolute bottom-0 right-0 w-24 h-24 opacity-5 pointer-events-none">
                                     <div className="w-full h-full border-4 border-[#4A0E0E] rounded-full -mr-12 -mb-12"></div>

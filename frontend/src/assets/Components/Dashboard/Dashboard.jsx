@@ -95,7 +95,7 @@ const Dashboard = () => {
         .sort((a, b) => b.rented - a.rented)
         .slice(0, 5);
 
-    // Mock Monthly Revenue based on real data (distributing it for visualization)
+    
     const monthlyRevenue = [
         { month: 'Jan', revenue: totalRevenue * 0.1 },
         { month: 'Feb', revenue: totalRevenue * 0.15 },
@@ -285,7 +285,7 @@ const Dashboard = () => {
                             <div className="flex items-center justify-between mb-6">
                                 <div>
                                     <h2 className="font-bold text-gray-800">Monthly Revenue</h2>
-                                    <p className="text-xs text-gray-400 mt-0.5">Jan – Jun 2024</p>
+                                    <p className="text-xs text-gray-400 mt-0.5">Jan – Jun 2026</p>
                                 </div>
                                 <span className="flex items-center gap-1 text-xs bg-green-50 text-green-600 font-semibold px-2.5 py-1 rounded-full">
                                     <ArrowUp className="h-3 w-3" /> +23% vs last period
@@ -314,7 +314,7 @@ const Dashboard = () => {
                         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                             <div className="flex items-center justify-between mb-6">
                                 <h2 className="font-bold text-gray-800">Top Products</h2>
-                                <Link to="/" className="text-xs text-[#6A0D25] font-semibold hover:underline flex items-center gap-1">
+                                <Link to="/admin/orders" className="text-xs text-[#6A0D25] font-semibold hover:underline flex items-center gap-1">
                                     View All <ChevronRight className="h-3 w-3" />
                                 </Link>
                             </div>
@@ -345,7 +345,7 @@ const Dashboard = () => {
                         <div className="xl:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                             <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
                                 <h2 className="font-bold text-gray-800">Recent Orders</h2>
-                                <Link to="/" className="text-xs text-[#6A0D25] font-semibold hover:underline flex items-center gap-1">
+                                <Link to="/admin/orders" className="text-xs text-[#6A0D25] font-semibold hover:underline flex items-center gap-1">
                                     View All <ChevronRight className="h-3 w-3" />
                                 </Link>
                             </div>

@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
-import { 
-    CheckCircle, 
-    ShoppingBag, 
-    Mail, 
-    ArrowRight, 
+import {
+    CheckCircle,
+    ShoppingBag,
+    Mail,
+    ArrowRight,
     Home,
     LayoutDashboard,
     Download,
     Star
 } from 'lucide-react';
+import generateInvoicePDF from '../../../utils/invoiceGenerator';
 
 const ThankYou = () => {
     const location = useLocation();
@@ -31,6 +32,10 @@ const ThankYou = () => {
         return () => clearTimeout(timer);
     }, [order, navigate]);
 
+    const handleDownloadInvoice = () => {
+        generateInvoicePDF(order);
+    };
+
     if (!order) return null;
 
     return (
@@ -40,7 +45,7 @@ const ThankYou = () => {
                 <div className="bg-white rounded-3xl shadow-xl shadow-rose-100/50 overflow-hidden border border-rose-50">
                     {/* Top Decorative Banner */}
                     <div className="bg-[#4A0E0E] h-2 py-0"></div>
-                    
+
                     <div className="p-8 md:p-12 text-center">
                         {/* Success Icon */}
                         <div className="inline-flex items-center justify-center w-20 h-20 bg-green-50 rounded-full mb-6 relative">
@@ -69,14 +74,18 @@ const ThankYou = () => {
                             <div className="w-px h-10 bg-gray-200 hidden md:block"></div>
                             <div className="text-center md:text-left">
                                 <p className="text-gray-400 text-xs uppercase tracking-widest font-bold mb-1">Total Amount</p>
-                                <p className="text-[#D4AF37] font-bold text-lg">৳ {order.totalAmount.toLocaleString()}</p>
+                                <div className="flex items-center gap-2">
+                                    {order.discount > 0 && (
+                                        <p className="text-gray-400 line-through text-sm">BDT {order.subtotal?.toLocaleString()}</p>
+                                    )}
+                                    <p className="text-[#D4AF37] font-bold text-lg">BDT {order.totalAmount.toLocaleString()}</p>
+                                </div>
                             </div>
                         </div>
 
                         {/* Email Status */}
-                        <div className={`transition-all duration-700 flex items-center justify-center gap-3 p-4 rounded-xl mb-10 ${
-                            emailSent ? 'bg-blue-50 text-blue-600' : 'bg-amber-50 text-amber-600'
-                        }`}>
+                        <div className={`transition-all duration-700 flex items-center justify-center gap-3 p-4 rounded-xl mb-10 ${emailSent ? 'bg-blue-50 text-blue-600' : 'bg-amber-50 text-amber-600'
+                            }`}>
                             {emailSent ? (
                                 <>
                                     <Mail className="w-5 h-5" />
@@ -115,14 +124,14 @@ const ThankYou = () => {
 
                         {/* Action Buttons */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <button 
+                            <button
                                 onClick={() => navigate('/customer-dashboard')}
                                 className="flex items-center justify-center gap-2 bg-[#4A0E0E] text-white py-4 rounded-2xl font-bold hover:bg-[#5E0B15] transition shadow-lg shadow-rose-900/10"
                             >
                                 <LayoutDashboard className="w-5 h-5" />
                                 View Dashboard
                             </button>
-                            <button 
+                            <button
                                 onClick={() => navigate('/')}
                                 className="flex items-center justify-center gap-2 bg-white border-2 border-gray-100 text-gray-700 py-4 rounded-2xl font-bold hover:bg-gray-50 transition"
                             >
@@ -138,7 +147,10 @@ const ThankYou = () => {
                             <Star className="w-4 h-4 text-[#D4AF37] fill-[#D4AF37]" />
                             <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Wedding Zone Premium</span>
                         </div>
-                        <button className="flex items-center gap-2 text-rose-600 text-sm font-bold hover:underline">
+                        <button
+                            onClick={handleDownloadInvoice}
+                            className="flex items-center gap-2 text-rose-600 text-sm font-bold hover:underline hover:text-rose-700 transition"
+                        >
                             <Download className="w-4 h-4" />
                             Download Invoice (PDF)
                         </button>

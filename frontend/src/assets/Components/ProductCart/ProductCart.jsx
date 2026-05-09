@@ -2,9 +2,9 @@ import React, { useContext, useState } from "react";
 import Swal from 'sweetalert2';
 import { useNavigate, Link } from "react-router";
 import { AuthContext } from "../../../Provider/AuthProvider";
-import { 
-    HomeIcon, 
-    ChevronRightIcon, 
+import {
+    HomeIcon,
+    ChevronRightIcon,
     ChevronLeftIcon,
     TrashIcon,
 } from '@heroicons/react/24/outline';
@@ -35,7 +35,7 @@ const CartItem = ({ item, handleRemove, onDurationSelect, onSizeChange }) => {
             const start = new Date(date);
             const end = new Date(start);
             end.setDate(start.getDate() + (item.rent_for_days || 3));
-            
+
             // Format to DD MMM YYYY for display
             const options = { day: 'numeric', month: 'short', year: 'numeric' };
             setEndDate(end.toLocaleDateString('en-GB', options));
@@ -76,7 +76,7 @@ const CartItem = ({ item, handleRemove, onDurationSelect, onSizeChange }) => {
 
             {/* Details */}
             <div className="flex-1 flex flex-col justify-between">
-                
+
                 <div>
                     <div className="flex justify-between items-start mb-3">
                         <h2 className="text-2xl font-serif font-bold text-accent">{item.name}</h2>
@@ -105,7 +105,7 @@ const CartItem = ({ item, handleRemove, onDurationSelect, onSizeChange }) => {
                             <RectangleGroupIcon className="h-4 w-4 text-[#B88E2F]" />
                             <div className="flex items-center gap-2">
                                 <span>Size:</span>
-                                <select 
+                                <select
                                     value={item.selectedSize || (item.size && item.size.length > 0 ? item.size[0] : 'Free Size')}
                                     onChange={(e) => onSizeChange(item.id, e.target.value)}
                                     className="bg-gray-50 border border-gray-200 rounded px-2 py-0.5 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-accent/20 cursor-pointer"
@@ -127,13 +127,12 @@ const CartItem = ({ item, handleRemove, onDurationSelect, onSizeChange }) => {
                 <div className="mb-4 bg-[#FDFBF7] p-4 rounded-xl border border-[#F2ECE4]">
                     <div className="flex items-center justify-between mb-3">
                         <p className="text-accent font-bold">Rental Duration ({item.rent_for_days || 3} Days)</p>
-                        <button 
+                        <button
                             onClick={toggleSelection}
-                            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 ${
-                                isSelected 
-                                ? "bg-accent text-white shadow-md scale-105" 
-                                : "bg-white border border-accent text-accent hover:bg-rose-50"
-                            }`}
+                            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 ${isSelected
+                                    ? "bg-accent text-white shadow-md scale-105"
+                                    : "bg-white border border-accent text-accent hover:bg-rose-50"
+                                }`}
                         >
                             {isSelected ? "Selected ✓" : "Select Duration"}
                         </button>
@@ -186,6 +185,10 @@ const Cart = () => {
     const { cart, setCart } = useContext(AuthContext);
     const navigate = useNavigate();
     const [selectedDurations, setSelectedDurations] = useState({});
+    const [showCouponInput, setShowCouponInput] = useState(false);
+    const [couponCode, setCouponCode] = useState('');
+    const [appliedCoupon, setAppliedCoupon] = useState(null);
+    const [couponError, setCouponError] = useState('');
 
     const handleDurationSelect = (id, isSelected) => {
         setSelectedDurations(prev => ({
@@ -195,9 +198,46 @@ const Cart = () => {
     };
 
     const handleSizeChange = (id, newSize) => {
-        setCart(prev => prev.map(item => 
+        setCart(prev => prev.map(item =>
             item.id === id ? { ...item, selectedSize: newSize } : item
         ));
+    };
+
+    const handleApplyCoupon = () => {
+        setCouponError('');
+        if (!couponCode.trim()) {
+            setCouponError('Please enter a coupon code');
+            return;
+        }
+
+        const coupons = JSON.parse(localStorage.getItem('wz_coupons') || '[]');
+        const found = coupons.find(c => c.code === couponCode.toUpperCase() && c.active);
+
+        if (!found) {
+            setCouponError('Invalid or inactive coupon code');
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Coupon',
+                text: 'This coupon code is not valid or has been deactivated.',
+                confirmButtonColor: '#4A0E0E'
+            });
+            return;
+        }
+
+        setAppliedCoupon(found);
+        setCouponCode('');
+        setShowCouponInput(false);
+        Swal.fire({
+            icon: 'success',
+            title: 'Coupon Applied!',
+            text: `${found.code} - ${found.type === 'percent' ? found.discount + '%' : 'BDT ' + found.discount} off`,
+            timer: 2000,
+            showConfirmButton: false
+        });
+    };
+
+    const handleRemoveCoupon = () => {
+        setAppliedCoupon(null);
     };
 
     // remove item
@@ -211,9 +251,21 @@ const Cart = () => {
     };
 
     // total price
-    const total = cart.reduce((sum, item) => {
+    const subtotal = cart.reduce((sum, item) => {
         return sum + item.rent * (item.rent_for_days || 3);
     }, 0);
+
+    // Calculate discount
+    let discount = 0;
+    if (appliedCoupon) {
+        if (appliedCoupon.type === 'percent') {
+            discount = Math.round(subtotal * (appliedCoupon.discount / 100));
+        } else {
+            discount = appliedCoupon.discount;
+        }
+    }
+
+    const total = Math.max(0, subtotal - discount);
 
     // total days
     const totalDays = cart.reduce((sum, item) => {
@@ -224,7 +276,7 @@ const Cart = () => {
 
     return (
         <div className="min-h-screen bg-[#fafafa] font-sans pb-16">
-            
+
             {/* Breadcrumbs */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <nav className="flex items-center text-sm text-gray-500 space-x-2">
@@ -237,7 +289,7 @@ const Cart = () => {
             </div>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                
+
                 {/* Header */}
                 <h1 className="text-3xl md:text-4xl font-serif font-bold mb-8 text-accent">
                     Your Rental Cart ({cart.length})
@@ -246,7 +298,7 @@ const Cart = () => {
                 {cart.length === 0 ? (
                     <div className="bg-white rounded-xl shadow-sm p-10 text-center">
                         <p className="text-gray-500 text-lg mb-6">Your cart is empty.</p>
-                        <button 
+                        <button
                             onClick={() => navigate("/")}
                             className="bg-accent skeleton hover:bg-[#5E0B15] text-white py-3 px-8 rounded-lg font-semibold transition"
                         >
@@ -259,10 +311,10 @@ const Cart = () => {
                         {/* LEFT: Cart Items */}
                         <div className="w-full lg:w-2/3 space-y-6">
                             {cart.map((item) => (
-                                <CartItem 
-                                    key={item.id} 
-                                    item={item} 
-                                    handleRemove={handleRemove} 
+                                <CartItem
+                                    key={item.id}
+                                    item={item}
+                                    handleRemove={handleRemove}
                                     onDurationSelect={handleDurationSelect}
                                     onSizeChange={handleSizeChange}
                                 />
@@ -270,9 +322,9 @@ const Cart = () => {
 
                             {/* Continue Shopping */}
                             <div className="pt-4">
-                                <button 
+                                <button
                                     onClick={() => navigate("/")}
-                                        className="flex items-center gap-2 border border-accent text-accent hover:bg-[#FDFBF7] py-2.5 px-6 rounded-lg font-semibold transition bg-white"
+                                    className="flex items-center gap-2 border border-accent text-accent hover:bg-[#FDFBF7] py-2.5 px-6 rounded-lg font-semibold transition bg-white"
                                 >
                                     <ChevronLeftIcon className="h-4 w-4" />
                                     Continue Shopping
@@ -282,8 +334,8 @@ const Cart = () => {
 
                         {/* RIGHT: Summary */}
                         <div className="w-full lg:w-1/3">
-                                <div className="bg-accent text-white p-8 rounded-2xl shadow-md sticky top-6">
-                                
+                            <div className="bg-accent text-white p-8 rounded-2xl shadow-md sticky top-6">
+
                                 <div className="text-center mb-8">
                                     <h2 className="text-2xl font-serif font-bold text-white mb-2">Order Summary</h2>
                                     {/* Decorative divider */}
@@ -299,7 +351,7 @@ const Cart = () => {
                                         <span>Total Items</span>
                                         <span className="font-medium text-white">{cart.length}</span>
                                     </div>
-                                    
+
                                     <div className="flex justify-between">
                                         <span>Total Days</span>
                                         <span className="font-medium text-white">{totalDays} Days</span>
@@ -308,10 +360,29 @@ const Cart = () => {
                                     <div className="flex justify-between pt-2">
                                         <span>Subtotal</span>
                                         <span className="font-bold text-white text-lg">
-                                            ৳ {total.toLocaleString()}
+                                            ৳ {subtotal.toLocaleString()}
                                         </span>
                                     </div>
                                 </div>
+
+                                {appliedCoupon && (
+                                    <div className="bg-green-50/20 border border-green-400/30 rounded-xl p-4 mb-4">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="text-sm font-semibold text-green-300">Coupon Applied ✓</span>
+                                            <button
+                                                onClick={handleRemoveCoupon}
+                                                className="text-xs text-red-300 hover:text-red-100 transition"
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                        <p className="text-xs text-green-200 mb-2">{appliedCoupon.code}</p>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-sm text-green-300">Discount ({appliedCoupon.type === 'percent' ? appliedCoupon.discount + '%' : 'Flat'})</span>
+                                            <span className="font-bold text-green-300">- BDT {discount.toLocaleString()}</span>
+                                        </div>
+                                    </div>
+                                )}
 
                                 <div className="border-t border-dashed border-[#8A2B3B] my-6"></div>
 
@@ -326,34 +397,71 @@ const Cart = () => {
 
                                 <div className="space-y-3">
                                     <button
-                                        onClick={() => isAllSelected && navigate("/checkout")}
+                                        onClick={() => isAllSelected && navigate("/checkout", { state: { appliedCoupon } })}
                                         disabled={!isAllSelected}
-                                        className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-lg font-bold transition ${
-                                            isAllSelected 
-                                            ? "bg-white text-accent hover:bg-secondary hover:text-white cursor-pointer shadow-lg" 
-                                            : "bg-white/20 text-white/50 cursor-not-allowed border border-white/10"
-                                        }`}
+                                        className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-lg font-bold transition ${isAllSelected
+                                                ? "bg-white text-accent hover:bg-secondary hover:text-white cursor-pointer shadow-lg"
+                                                : "bg-white/20 text-white/50 cursor-not-allowed border border-white/10"
+                                            }`}
                                     >
                                         <LockClosedIcon className="h-5 w-5" />
                                         Proceed to Checkout
                                     </button>
-                                    
+
                                     {!isAllSelected && cart.length > 0 && (
                                         <p className="text-[10px] text-center text-[#F5C518] animate-pulse">
                                             Please select rental duration for all items to proceed.
                                         </p>
                                     )}
-                                    
-                                    <button
-                                        className="w-full flex items-center justify-center gap-2 bg-transparent border border-white text-white hover:bg-secondary py-3.5 rounded-lg font-semibold transition"
-                                    >
-                                        <TagIcon className="h-5 w-5" />
-                                        Have a Coupon?
-                                    </button>
+
+                                    {!showCouponInput ? (
+                                        <button
+                                            onClick={() => setShowCouponInput(true)}
+                                            className="w-full flex items-center justify-center gap-2 bg-transparent border border-white text-white hover:bg-secondary py-3.5 rounded-lg font-semibold transition"
+                                        >
+                                            <TagIcon className="h-5 w-5" />
+                                            Have a Coupon?
+                                        </button>
+                                    ) : (
+                                        <div className="space-y-2 bg-white/10 p-3 rounded-lg border border-white/20">
+                                            <div className="flex gap-2">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Enter coupon code"
+                                                    value={couponCode}
+                                                    onChange={(e) => {
+                                                        setCouponCode(e.target.value.toUpperCase());
+                                                        setCouponError('');
+                                                    }}
+                                                    onKeyPress={(e) => e.key === 'Enter' && handleApplyCoupon()}
+                                                    className="flex-1 px-3 py-2 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 text-sm"
+                                                />
+                                                <button
+                                                    onClick={handleApplyCoupon}
+                                                    className="px-4 py-2 bg-white text-accent font-bold rounded-lg hover:bg-secondary hover:text-white transition text-sm"
+                                                >
+                                                    Apply
+                                                </button>
+                                            </div>
+                                            {couponError && (
+                                                <p className="text-xs text-red-300">{couponError}</p>
+                                            )}
+                                            <button
+                                                onClick={() => {
+                                                    setShowCouponInput(false);
+                                                    setCouponCode('');
+                                                    setCouponError('');
+                                                }}
+                                                className="w-full text-xs text-white/60 hover:text-white transition"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Features */}
-                                    <div className="grid grid-cols-4 gap-2 mt-10 pt-6 border-t border-accent">
+                                <div className="grid grid-cols-4 gap-2 mt-10 pt-6 border-t border-accent">
                                     <div className="flex flex-col items-center text-center gap-1.5">
                                         <TruckIcon className="h-5 w-5 text-[#F5C518]" />
                                         <p className="text-[9px] font-semibold text-white leading-tight">Free Delivery</p>
