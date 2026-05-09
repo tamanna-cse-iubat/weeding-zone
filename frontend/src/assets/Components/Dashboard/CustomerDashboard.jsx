@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
+import Swal from 'sweetalert2';
 import { AuthContext } from '../../../Provider/AuthProvider';
 import {
     LayoutDashboard,
@@ -22,7 +23,7 @@ import {
 import { Link } from 'react-router';
 
 const CustomerDashboard = () => {
-    const { user, logOut, manageUserProfile } = useContext(AuthContext);
+    const { user, logOut, manageUserProfile, wishlist } = useContext(AuthContext);
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     
@@ -52,7 +53,12 @@ const CustomerDashboard = () => {
             // In a real app, user object would auto-update via AuthProvider's listener
         } catch (error) {
             console.error("Failed to update profile:", error);
-            alert("Error updating profile. Please try again.");
+            Swal.fire({
+                title: 'Update Failed',
+                text: 'There was an error updating your profile. Please try again.',
+                icon: 'error',
+                confirmButtonColor: '#4A0E0E'
+            });
         } finally {
             setUpdating(false);
         }
@@ -74,7 +80,7 @@ const CustomerDashboard = () => {
         },
         { 
             label: 'Wishlist Items', 
-            value: '0', 
+            value: wishlist.length.toString(), 
             icon: Heart, 
             color: 'bg-purple-50 text-purple-600' 
         },
@@ -118,18 +124,19 @@ const CustomerDashboard = () => {
 
                 <nav className="flex-1 px-4 pb-6 space-y-1">
                     {[
-                        { icon: LayoutDashboard, label: 'Dashboard', active: true },
-                        { icon: ShoppingBag, label: 'My Orders' },
-                        { icon: History, label: 'My Rentals' },
-                        { icon: Heart, label: 'Wishlist' },
-                        { icon: User, label: 'My Profile' },
-                        { icon: MapPin, label: 'Address Book' },
-                        { icon: CreditCard, label: 'Payment Methods' },
-                        { icon: Bell, label: 'Notifications' },
-                        { icon: LifeBuoy, label: 'Support' },
+                        { icon: LayoutDashboard, label: 'Dashboard', active: true, to: '/customer-dashboard' },
+                        { icon: ShoppingBag, label: 'My Orders', to: '/customer-dashboard' },
+                        { icon: History, label: 'My Rentals', to: '/customer-dashboard' },
+                        { icon: Heart, label: 'Wishlist', to: '/wishlist' },
+                        { icon: User, label: 'My Profile', to: '/customer-dashboard' },
+                        { icon: MapPin, label: 'Address Book', to: '/customer-dashboard' },
+                        { icon: CreditCard, label: 'Payment Methods', to: '/customer-dashboard' },
+                        { icon: Bell, label: 'Notifications', to: '/customer-dashboard' },
+                        { icon: LifeBuoy, label: 'Support', to: 'https://wa.me/+8801816697212' },
                     ].map((item, idx) => (
-                        <button
+                        <Link
                             key={idx}
+                            to={item.to}
                             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                                 item.active 
                                 ? 'bg-rose-50 text-[#4A0E0E] font-semibold' 
@@ -138,7 +145,7 @@ const CustomerDashboard = () => {
                         >
                             <item.icon className={`w-5 h-5 ${item.active ? 'text-[#4A0E0E]' : 'text-gray-400'}`} />
                             <span className="text-sm">{item.label}</span>
-                        </button>
+                        </Link>
                     ))}
                     
                     <button 

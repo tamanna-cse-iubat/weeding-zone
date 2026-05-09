@@ -1,7 +1,8 @@
-import React, { use } from 'react';
-import { Link, NavLink } from 'react-router';
+import React, { use, useState } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router';
 import './Navbar.css'
-import { Search, ShoppingBag, User2Icon } from 'lucide-react';
+import { Search, ShoppingBag, User2Icon, Heart, LogOutIcon, LogInIcon } from 'lucide-react';
+import Swal from 'sweetalert2';
 import { AuthContext } from '../../../Provider/AuthProvider';
 
 const links = <>
@@ -29,11 +30,26 @@ const links = <>
     <li><NavLink to={'contact'}>Contact Us</NavLink></li>
 </>
 const Navbar = () => {
-    const { user, logOut, cart } = use(AuthContext);
+    const { user, logOut, cart, wishlist } = use(AuthContext);
+    const [searchTerm, setSearchTerm] = useState('');
+    const navigate = useNavigate();
+
+    const handleSearch = (e) => {
+        if (e.key === 'Enter' && searchTerm.trim()) {
+            navigate(`/search/${searchTerm.trim()}`);
+            setSearchTerm('');
+        }
+    };
     //console.log(user);
 
     const handlelogOut=()=> {
-        alert('You Logged out Successfully')
+        Swal.fire({
+            title: 'Logged Out',
+            text: 'You have been logged out successfully.',
+            icon: 'success',
+            timer: 1500,
+            showConfirmButton: false
+        });
         logOut().then(() => {
             // Sign-out successful.
         }).catch((error) => {
@@ -69,18 +85,35 @@ const Navbar = () => {
                     
                    
                     <input
-                        class="bg-zinc-200 text-zinc-600 font-mono ring-1 ring-zinc-400 focus:ring-2 focus:accent outline-none duration-300 placeholder:text-zinc-600 placeholder:opacity-50 rounded-full px-4 py-1 shadow-md focus:shadow-lg focus:shadow-rose-400"
-                        autocomplete="off"
-                        placeholder="Search"
+                        className="bg-zinc-200 text-zinc-600 font-mono ring-1 ring-zinc-400 focus:ring-2 focus:accent outline-none duration-300 placeholder:text-zinc-600 placeholder:opacity-50 rounded-full px-4 py-1 shadow-md focus:shadow-lg focus:shadow-rose-400 w-full"
+                        autoComplete="off"
+                        placeholder="Search outfits..."
                         name="text"
                         type="text"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onKeyDown={handleSearch}
                     />
 
                 </label>
                 
-                    <Link to="/cart" class="relative " ><ShoppingBag />
-                    <div class="badge badge-neutral absolute -top-4 left-2 size-6">{ cart.length}</div>
-                    </Link>
+                <Link to="/wishlist" className="relative group p-2 rounded-full hover:bg-gray-100 transition-colors">
+                    <Heart className="size-6 text-gray-700 group-hover:text-accent transition-colors" />
+                    {wishlist && wishlist.length > 0 && (
+                        <div className="badge badge-accent absolute -top-1 -right-1 size-5 p-0 text-[10px] flex items-center justify-center border-2 border-white">
+                            {wishlist.length}
+                        </div>
+                    )}
+                </Link>
+
+                <Link to="/cart" className="relative group p-2 rounded-full hover:bg-gray-100 transition-colors">
+                    <ShoppingBag className="size-6 text-gray-700 group-hover:text-accent transition-colors" />
+                    {cart.length > 0 && (
+                        <div className="badge badge-neutral absolute -top-1 -right-1 size-5 p-0 text-[10px] flex items-center justify-center border-2 border-white">
+                            {cart.length}
+                        </div>
+                    )}
+                </Link>
                     
                 
                 {
@@ -91,13 +124,13 @@ const Navbar = () => {
                 {user ?  
                     <Link to={'/'}><button onClick={handlelogOut} className="bg-red-950 text-red-400 border border-red-400 border-b-4 font-medium overflow-hidden relative px-4 py-2 rounded-md hover:brightness-150 hover:border-t-4 hover:border-b active:opacity-75 outline-none duration-300 group">
                         <span className="bg-red-400 shadow-red-400 absolute -top-[150%] left-0 inline-flex w-80 h-[5px] rounded-md opacity-50 group-hover:top-[150%] duration-500 shadow-[0_0_10px_10px_rgba(0,0,0,0.3)]"></span>
-                        Log Out
+                        <LogOutIcon/>
                     </button>
                     </Link>
                 :
                     <Link to={'signin'}><button className="bg-red-950 text-red-400 border border-red-400 border-b-4 font-medium overflow-hidden relative px-4 py-2 rounded-md hover:brightness-150 hover:border-t-4 hover:border-b active:opacity-75 outline-none duration-300 group">
                     <span className="bg-red-400 shadow-red-400 absolute -top-[150%] left-0 inline-flex w-80 h-[5px] rounded-md opacity-50 group-hover:top-[150%] duration-500 shadow-[0_0_10px_10px_rgba(0,0,0,0.3)]"></span>
-                    Login
+                    <LogInIcon />
                 </button>
             </Link>}
                

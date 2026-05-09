@@ -1,6 +1,7 @@
 import React, { use, useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { AuthContext } from '../../../Provider/AuthProvider';
+import Swal from 'sweetalert2';
 
 const SignIn = () => {
     const { signInUser, user, resetPassword } = use(AuthContext);
@@ -25,12 +26,21 @@ const SignIn = () => {
         seterror('');
         resetPassword(email)
             .then(() => {
-                setSuccess('Password reset email sent! Check your inbox.');
+                Swal.fire({
+                    title: 'Email Sent',
+                    text: 'Password reset email sent! Check your inbox.',
+                    icon: 'success',
+                    confirmButtonColor: '#7F3D27'
+                });
                 seterror('');
             })
             .catch((error) => {
-                seterror(error.message);
-                setSuccess('');
+                Swal.fire({
+                    title: 'Reset Failed',
+                    text: error.message,
+                    icon: 'error',
+                    confirmButtonColor: '#7F3D27'
+                });
             });
     }
 
@@ -41,14 +51,22 @@ const SignIn = () => {
         const password = form.password.value;
         signInUser(email, password)
             .then((result) => {
-            const user = result.user;
-            console.log(user);
-            navigate('/');
+                Swal.fire({
+                    title: 'Login Successful',
+                    text: 'Welcome back to Wedding Zone!',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                navigate('/');
             })
             .catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                seterror(errorMessage);
+                Swal.fire({
+                    title: 'Login Failed',
+                    text: 'Invalid email or password. Please try again.',
+                    icon: 'error',
+                    confirmButtonColor: '#7F3D27'
+                });
             });
         console.log({email, password});
     

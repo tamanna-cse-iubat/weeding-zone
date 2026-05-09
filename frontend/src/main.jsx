@@ -22,6 +22,8 @@ import Checkout from './assets/Components/CheckoutPage/Checkout.jsx'
 import CategoryProducts from './assets/Components/CategoryProducts/CategoryProducts.jsx'
 import CustomerDashboard from './assets/Components/Dashboard/CustomerDashboard.jsx'
 import ThankYou from './assets/Components/CheckoutPage/ThankYou.jsx'
+import Wishlist from './assets/Components/Wishlilist/Wishlist.jsx'
+import SearchResults from './assets/Components/CategoryProducts/SearchResults.jsx'
 
 const router = createBrowserRouter([{
   path: '/',
@@ -95,6 +97,18 @@ const router = createBrowserRouter([{
       path: '/thank-you',
       element: <ThankYou></ThankYou>
     },
+    {
+      path: '/wishlist',
+      element: <Wishlist></Wishlist>
+    },
+    {
+      path: '/search/:query',
+      Component: SearchResults,
+      loader: async () => {
+        const res = await axios.get('/product.json');
+        return res.data;
+      }
+    }
 
   ]
 }])

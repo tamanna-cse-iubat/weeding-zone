@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react';
+import Swal from 'sweetalert2';
 import { Link, useLoaderData, useNavigate } from 'react-router';
 import { 
     HomeIcon, 
@@ -31,14 +32,29 @@ const ProductDetails = () => {
     // Mocking thumbnails with the same image since data only has one
     const thumbnails = [photoURL, photoURL, photoURL, photoURL];
 
-    const { cart, setCart } = useContext(AuthContext);
+    const { cart, setCart, wishlist, setWishlist } = useContext(AuthContext);
     const navigate = useNavigate();
+
+    const isWishlisted = wishlist.some(item => item.id === id);
+
+    const handleWishlist = () => {
+        if (isWishlisted) {
+            setWishlist(prev => prev.filter(item => item.id !== id));
+        } else {
+            setWishlist(prev => [...prev, productDetails]);
+        }
+    };
 
     const handleCart = (cartProduct) => {
         const exists = cart.find(item => item.id === cartProduct.id);
 
         if (exists) {
-            alert("Already added to cart");
+            Swal.fire({
+                title: "Already in Cart",
+                text: "This item is already waiting for you in the cart.",
+                icon: "info",
+                confirmButtonColor: "#6A0D25"
+            });
             return;
         }
 
@@ -239,9 +255,16 @@ const ProductDetails = () => {
                                 <ShoppingCartIcon className="h-5 w-5" />
                                 Add to Cart
                             </button>
-                            <button className="flex items-center justify-center gap-2 bg-white border border-accent text-accent hover:bg-[#FDFBF7] py-3.5 px-6 rounded-lg font-semibold transition shadow-sm">
-                                <HeartIcon className="h-5 w-5" />
-                                Add to Wishlist
+                            <button 
+                                onClick={handleWishlist}
+                                className={`flex items-center justify-center gap-2 border py-3.5 px-6 rounded-lg font-semibold transition shadow-sm ${
+                                    isWishlisted 
+                                    ? "bg-accent text-white border-accent" 
+                                    : "bg-white border-accent text-accent hover:bg-[#FDFBF7]"
+                                }`}
+                            >
+                                <HeartIcon className={`h-5 w-5 ${isWishlisted ? 'fill-current' : ''}`} />
+                                {isWishlisted ? 'Wishlisted' : 'Add to Wishlist'}
                             </button>
                         </div>
 

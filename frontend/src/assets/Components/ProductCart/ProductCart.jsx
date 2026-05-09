@@ -1,4 +1,5 @@
 import React, { useContext, useState } from "react";
+import Swal from 'sweetalert2';
 import { useNavigate, Link } from "react-router";
 import { AuthContext } from "../../../Provider/AuthProvider";
 import { 
@@ -49,7 +50,12 @@ const CartItem = ({ item, handleRemove, onDurationSelect }) => {
 
     const toggleSelection = () => {
         if (!startDate) {
-            alert("Please select a start date first");
+            Swal.fire({
+                title: "Date Required",
+                text: "Please select a start date before selecting the duration.",
+                icon: "warning",
+                confirmButtonColor: "#6A0D25"
+            });
             return;
         }
         const nextState = !isSelected;

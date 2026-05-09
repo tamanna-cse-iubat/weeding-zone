@@ -144,7 +144,7 @@ const Dashboard = () => {
                         { icon: ShoppingCart, label: 'Cart', active: false, to: '/cart' },
                         { icon: ClipboardList, label: 'Orders', active: false, to: '/dashboard' },
                         { icon: ShoppingBag, label: 'Products', active: false, to: '/' },
-                        { icon: Heart, label: 'Wishlist', active: false, to: '/' },
+                        { icon: Heart, label: 'Wishlist', active: false, to: '/wishlist' },
                     ].map((item) => (
                         <Link
                             key={item.label}

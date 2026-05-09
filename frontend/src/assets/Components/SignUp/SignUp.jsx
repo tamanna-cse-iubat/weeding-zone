@@ -1,5 +1,6 @@
 import React, { use, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router';
+import Swal from 'sweetalert2';
 import { AuthContext } from '../../../Provider/AuthProvider';
 
 
@@ -27,8 +28,13 @@ const SignUp = () => {
                 navigate('/');
             }).catch((error) => {
                 const errorCode = error.code;
-                const errorMassage = error.massage;
-                alert(errorMassage);
+                const errorMassage = error.message;
+                Swal.fire({
+                    title: 'Registration Failed',
+                    text: errorMassage || 'Something went wrong. Please check your details.',
+                    icon: 'error',
+                    confirmButtonColor: '#7F3D27'
+                });
     })
 
 

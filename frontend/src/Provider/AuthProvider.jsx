@@ -18,6 +18,20 @@ const AuthProvider = ({ children }) => {
     const [cart, setCart] = useState([]);
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [wishlist, setWishlist] = useState([]);
+
+    useEffect(() => {
+        const key = user ? `wishlist_${user.email}` : 'wishlist_guest';
+        const savedWishlist = localStorage.getItem(key);
+        setWishlist(savedWishlist ? JSON.parse(savedWishlist) : []);
+    }, [user]);
+
+    useEffect(() => {
+        if (user || !loading) {
+            const key = user ? `wishlist_${user.email}` : 'wishlist_guest';
+            localStorage.setItem(key, JSON.stringify(wishlist));
+        }
+    }, [wishlist, user, loading]);
 
     const createUser = (email, password) => {
         setLoading(true);
@@ -65,6 +79,8 @@ const AuthProvider = ({ children }) => {
         signInUser,
         cart,
         setCart,
+        wishlist,
+        setWishlist,
         resetPassword,
         manageUserProfile
     }
