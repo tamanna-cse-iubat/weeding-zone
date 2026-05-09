@@ -35,13 +35,18 @@ const CustomerDashboard = () => {
     });
     const [updating, setUpdating] = useState(false);
 
-    useEffect(() => {
-        // Fetch orders from localStorage
+    const loadOrders = () => {
         const allOrders = JSON.parse(localStorage.getItem('wedding_orders') || '[]');
-        // Filter orders for the current user
         const userOrders = allOrders.filter(order => order.customerEmail === user?.email);
         setOrders(userOrders);
         setLoading(false);
+    };
+
+    useEffect(() => {
+        loadOrders();
+        // Poll every 10 seconds so admin status changes appear without page refresh
+        const interval = setInterval(loadOrders, 10000);
+        return () => clearInterval(interval);
     }, [user]);
 
     const handleUpdateProfile = async (e) => {
@@ -74,7 +79,7 @@ const CustomerDashboard = () => {
         },
         { 
             label: 'Active Rentals', 
-            value: orders.filter(o => o.status === 'Active Rental').length.toString(), 
+            value: orders.filter(o => ['Confirmed', 'Shipped'].includes(o.status)).length.toString(), 
             icon: Clock, 
             color: 'bg-blue-50 text-blue-600' 
         },
@@ -94,10 +99,12 @@ const CustomerDashboard = () => {
 
     const getStatusStyle = (status) => {
         switch (status) {
+            case 'Pending':   return 'bg-yellow-100 text-yellow-700';
+            case 'Confirmed': return 'bg-blue-100 text-blue-700';
+            case 'Shipped':   return 'bg-purple-100 text-purple-700';
             case 'Delivered': return 'bg-green-100 text-green-700';
-            case 'Active Rental': return 'bg-amber-100 text-amber-700';
-            case 'Pending': return 'bg-blue-100 text-blue-700';
-            default: return 'bg-gray-100 text-gray-700';
+            case 'Cancelled': return 'bg-red-100 text-red-600';
+            default:          return 'bg-gray-100 text-gray-700';
         }
     };
 

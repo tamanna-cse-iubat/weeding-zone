@@ -44,7 +44,7 @@ const Checkout = () => {
             items: cart,
             totalAmount: total,
             paymentMethod: paymentMethod,
-            status: 'Delivered', // Default for demo
+            status: 'Pending',
             timestamp: new Date().getTime()
         };
 

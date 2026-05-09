@@ -142,7 +142,7 @@ const Dashboard = () => {
                     {[
                         { icon: Home, label: 'Overview', active: true, to: '/dashboard' },
                         { icon: ShoppingCart, label: 'Cart', active: false, to: '/cart' },
-                        { icon: ClipboardList, label: 'Orders', active: false, to: '/dashboard' },
+                        { icon: ClipboardList, label: 'Orders', active: false, to: '/admin/orders' },
                         { icon: ShoppingBag, label: 'Products', active: false, to: '/admin/inventory' },
                         { icon: Heart, label: 'Wishlist', active: false, to: '/wishlist' },
                     ].map((item) => (

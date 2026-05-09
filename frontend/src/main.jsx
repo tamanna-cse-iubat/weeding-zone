@@ -26,6 +26,7 @@ import Wishlist from './assets/Components/Wishlilist/Wishlist.jsx'
 import SearchResults from './assets/Components/CategoryProducts/SearchResults.jsx'
 import InventoryManagement from './assets/Components/Dashboard/InventoryManagement.jsx'
 import AdminRoute from './Provider/AdminRoute.jsx'
+import OrderManagment from './assets/Components/Dashboard/OrderManagment.jsx'
 
 const productLoader = async () => {
   const savedProducts = localStorage.getItem('managed_products');
@@ -111,6 +112,10 @@ const router = createBrowserRouter([{
     {
       path: '/admin/inventory',
       element: <AdminRoute><InventoryManagement /></AdminRoute>
+    },
+    {
+      path: '/admin/orders',
+      element: <AdminRoute><OrderManagment /></AdminRoute>
     }
     
 
