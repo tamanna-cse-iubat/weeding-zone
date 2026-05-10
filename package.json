@@ -1,0 +1,10 @@
+{
+  "name": "weeding-zone-root",
+  "private": true,
+  "workspaces": [
+    "weeding-zone-client"
+  ],
+  "scripts": {
+    "build": "cd weeding-zone-client && npm run build"
+  }
+}
