@@ -1,5 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router';
+import axios from 'axios';
+import Swal from 'sweetalert2';
 import { AuthContext } from '../../../Provider/AuthProvider';
 import {
     ShoppingBag,
@@ -19,6 +21,7 @@ import {
     ChevronRight,
     Eye,
     ArrowUp,
+    X,
 } from 'lucide-react';
 
 
@@ -26,10 +29,10 @@ import {
 
 
 const StatCard = ({ icon: Icon, label, value, change, changeType, color }) => (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col gap-4">
+    <div className="bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-gray-100 flex flex-col gap-4">
         <div className="flex justify-between items-start">
-            <div className={`p-3 rounded-xl ${color}`}>
-                <Icon className="h-6 w-6 text-white" />
+            <div className={`p-2 md:p-3 rounded-xl ${color}`}>
+                <Icon className="h-5 md:h-6 w-5 md:w-6 text-white" />
             </div>
             <span className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full ${changeType === 'up' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'}`}>
                 {changeType === 'up' ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
@@ -37,8 +40,8 @@ const StatCard = ({ icon: Icon, label, value, change, changeType, color }) => (
             </span>
         </div>
         <div>
-            <p className="text-2xl font-bold text-gray-800">{value}</p>
-            <p className="text-sm text-gray-500 mt-1">{label}</p>
+            <p className="text-lg md:text-2xl font-bold text-gray-800">{value}</p>
+            <p className="text-xs md:text-sm text-gray-500 mt-1">{label}</p>
         </div>
     </div>
 );
@@ -60,23 +63,59 @@ const Dashboard = () => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [allOrders, setAllOrders] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [editProfileOpen, setEditProfileOpen] = useState(false);
+    const [profileData, setProfileData] = useState({ displayName: user?.displayName || '', photoURL: user?.photoURL || '' });
 
     useEffect(() => {
-        // Fetch ALL orders for Admin view
-        const orders = JSON.parse(localStorage.getItem('wedding_orders') || '[]');
-        setAllOrders(orders);
-        setLoading(false);
-    }, []);
+        const loadOrders = async () => {
+            try {
+                const res = await axios.get('/api/orders');
+                setAllOrders(res.data);
+            } catch (error) {
+                console.error('Failed to load orders:', error);
+                setAllOrders([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadOrders();
+        setProfileData({ displayName: user?.displayName || '', photoURL: user?.photoURL || '' });
+    }, [user]);
 
     const handleLogout = () => {
         logOut().then(() => navigate('/signin'));
+    };
+
+    const handleProfileUpdate = () => {
+        // In a real app, update user profile in Firebase or backend
+        Swal.fire({ icon: 'success', title: 'Profile Updated!', timer: 1500, showConfirmButton: false });
+        setEditProfileOpen(false);
     };
 
     // Calculate Real Stats
     const totalRevenue = allOrders.reduce((sum, order) => sum + order.totalAmount, 0);
     const totalRentals = allOrders.length;
     const activeCustomers = new Set(allOrders.map(o => o.customerEmail)).size;
-    // const avgRating = "4.9 / 5"; // Placeholder for now
+
+    // Calculate REAL Monthly Revenue from Orders
+    const monthlyRevenueData = {};
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+    months.forEach(m => monthlyRevenueData[m] = 0);
+
+    allOrders.forEach(order => {
+        if (order.date) {
+            const monthName = order.date.split(' ')[0];
+            if (monthlyRevenueData.hasOwnProperty(monthName)) {
+                monthlyRevenueData[monthName] += order.totalAmount || 0;
+            }
+        }
+    });
+
+    const monthlyRevenue = months.map(month => ({
+        month,
+        revenue: monthlyRevenueData[month] || 0
+    }));
+    const maxRevenue = Math.max(...monthlyRevenue.map(m => m.revenue), 1);
 
     // Get Top Products
     const productStats = {};
@@ -96,16 +135,6 @@ const Dashboard = () => {
         .slice(0, 5);
 
     
-    const monthlyRevenue = [
-        { month: 'Jan', revenue: totalRevenue * 0.1 },
-        { month: 'Feb', revenue: totalRevenue * 0.15 },
-        { month: 'Mar', revenue: totalRevenue * 0.2 },
-        { month: 'Apr', revenue: totalRevenue * 0.25 },
-        { month: 'May', revenue: totalRevenue * 0.3 },
-    ];
-    const maxRevenue = Math.max(...monthlyRevenue.map(m => m.revenue)) || 1;
-
-
     if (loading || !user) {
         return <div className="flex justify-center items-center h-screen bg-[#F4F6F9]">
             <span className="loading loading-spinner loading-lg text-accent"></span>
@@ -113,11 +142,11 @@ const Dashboard = () => {
     }
 
     return (
-        <div className="min-h-screen bg-[#F4F6F9] font-sans flex">
+        <div className="min-h-screen bg-[#F4F6F9] font-sans flex flex-col md:flex-row">
 
 
             {/* Sidebar */}
-            <aside className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-[#4A0E1B] text-white flex flex-col transition-all duration-300 shrink-0 sticky top-0 h-screen`}>
+            <aside className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-[#4A0E1B] text-white flex flex-col transition-all duration-300 shrink-0 sticky top-0 h-screen hidden md:flex`}>
                 {/* Logo */}
                 <div className="p-6 border-b border-[#6A1A2A]">
                     {sidebarOpen ? (
@@ -131,7 +160,7 @@ const Dashboard = () => {
                         </div>
                     ) : (
                         <div className="flex justify-center">
-                            <SparklesIcon className="h-7 w-7 text-[#F5C518]" />
+                            <Sparkles className="h-7 w-7 text-[#F5C518]" />
                         </div>
                     )}
                 </div>
@@ -179,14 +208,54 @@ const Dashboard = () => {
                 </div>
             </aside>
 
+            {/* Mobile Sidebar Overlay */}
+            {sidebarOpen && (
+                <div className="fixed inset-0 z-40 bg-black/50 md:hidden" onClick={() => setSidebarOpen(false)}></div>
+            )}
+
+            {/* Mobile Sidebar */}
+            <aside className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} fixed left-0 top-0 w-64 h-screen bg-[#4A0E1B] text-white flex flex-col transition-transform duration-300 z-40 md:hidden`}>
+                <div className="p-6 border-b border-[#6A1A2A]">
+                    <p className="text-xl font-bold text-[#F5C518]">Wedding Zone</p>
+                    <p className="text-xs text-[#C2A3A9] mt-0.5">Dashboard</p>
+                </div>
+
+                <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+                    {[
+                        { icon: Home, label: 'Overview', active: true, to: '/dashboard' },
+                        { icon: ShoppingCart, label: 'Cart', active: false, to: '/cart' },
+                        { icon: ClipboardList, label: 'Orders', active: false, to: '/admin/orders' },
+                        { icon: ShoppingBag, label: 'Products', active: false, to: '/admin/inventory' },
+                        { icon: Heart, label: 'Wishlist', active: false, to: '/wishlist' },
+                    ].map((item) => (
+                        <Link
+                            key={item.label}
+                            to={item.to}
+                            onClick={() => setSidebarOpen(false)}
+                            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition ${item.active ? 'bg-[#F5C518] text-[#4A0E1B] font-semibold' : 'text-[#C2A3A9] hover:bg-[#6A1A2A] hover:text-white'}`}
+                        >
+                            <item.icon className="h-5 w-5 shrink-0" />
+                            <span className="text-sm">{item.label}</span>
+                        </Link>
+                    ))}
+                </nav>
+
+                <div className="p-4 border-t border-[#6A1A2A]">
+                    <button onClick={handleLogout} className="w-full flex items-center gap-3 p-2">
+                        <LogOut className="h-5 w-5" />
+                        <span className="text-sm">Logout</span>
+                    </button>
+                </div>
+            </aside>
+
 
             {/* Main Content */}
             <div className="flex-1 flex flex-col min-w-0">
 
 
                 {/* Top Bar */}
-                <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
-                    <div className="flex items-center gap-4">
+                <header className="bg-white border-b border-gray-200 px-4 md:px-6 py-4 flex items-center justify-between sticky top-0 z-10">
+                    <div className="flex items-center gap-2 md:gap-4">
                         <button
                             onClick={() => setSidebarOpen(!sidebarOpen)}
                             className="p-2 rounded-lg hover:bg-gray-100 transition"
@@ -197,7 +266,7 @@ const Dashboard = () => {
                                 <span className="block w-5 h-0.5 bg-gray-600"></span>
                             </div>
                         </button>
-                        <nav className="flex items-center text-sm text-gray-500 space-x-2">
+                        <nav className="hidden sm:flex items-center text-sm text-gray-500 space-x-2">
                             <Link to="/" className="hover:text-gray-800">Home</Link>
                             <ChevronRight className="h-4 w-4" />
                             <span className="text-[#6A0D25] font-medium">Dashboard</span>
@@ -205,42 +274,42 @@ const Dashboard = () => {
                     </div>
 
 
-                    <div className="flex items-center gap-3">
-                        <button className="relative p-2 rounded-lg hover:bg-gray-100 transition">
+                    <div className="flex items-center gap-2 md:gap-3">
+                        <button className="hidden sm:block p-2 rounded-lg hover:bg-gray-100 transition relative">
                             <Bell className="h-5 w-5 text-gray-600" />
                             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
                         </button>
-                        <button className="p-2 rounded-lg hover:bg-gray-100 transition">
+                        <button onClick={() => setEditProfileOpen(true)} className="p-2 rounded-lg hover:bg-gray-100 transition" title="Edit Profile">
                             <Settings className="h-5 w-5 text-gray-600" />
                         </button>
-                        <div className="flex items-center gap-2 pl-3 border-l border-gray-200">
-                            <UserCircle className="h-8 w-8 text-[#6A0D25]" />
+                        <div className="flex items-center gap-2 pl-2 md:pl-3 border-l border-gray-200">
+                            <UserCircle className="h-7 md:h-8 w-7 md:w-8 text-[#6A0D25]" />
                             <div className="hidden sm:block">
-                                <p className="text-sm font-medium text-gray-800 leading-none">{user?.email === 'tamanna.cse.iubat@gmail.com' ? user?.displayName || 'Admin' : user?.displayName || 'Customer'}</p>
-                                <p className="text-xs text-gray-400 mt-0.5">{user?.email === 'tamanna.cse.iubat@gmail.com' ? user?.displayName || 'Administration' : user?.displayName || 'Customer Panel'}</p>
+                                <p className="text-xs md:text-sm font-medium text-gray-800 leading-none">{user?.email === 'tamanna.cse.iubat@gmail.com' ? user?.displayName || 'Admin' : user?.displayName || 'Customer'}</p>
+                                <p className="text-[10px] text-gray-400 mt-0.5">{user?.email === 'tamanna.cse.iubat@gmail.com' ? user?.displayName || 'Administration' : user?.displayName || 'Customer Panel'}</p>
                             </div>
                         </div>
                     </div>
                 </header>
 
 
-                <main className="flex-1 p-6 space-y-6">
+                <main className="flex-1 p-4 md:p-6 space-y-6 overflow-y-auto">
 
 
                     {/* Page Header */}
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-800">Dashboard Overview</h1>
-                            <p className="text-sm text-gray-500 mt-1">Welcome back, {user?.email === 'tamanna.cse.iubat@gmail.com' ? user?.displayName || 'Admin' : user?.displayName || 'Customer'}! Here's what's happening.</p>
+                            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Dashboard</h1>
+                            <p className="text-sm text-gray-500 mt-1">Welcome back, {user?.email === 'tamanna.cse.iubat@gmail.com' ? user?.displayName || 'Admin' : user?.displayName || 'Customer'}!</p>
                         </div>
-                        <div className="flex gap-2 items-center text-sm bg-white border border-gray-200 rounded-xl px-4 py-2 text-gray-600">
+                        <div className="flex gap-2 items-center text-sm bg-white border border-gray-200 rounded-xl px-3 md:px-4 py-2 text-gray-600 w-fit">
                             <span>May 2026</span>
                         </div>
                     </div>
 
 
                     {/* Stat Cards */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5">
                         <StatCard
                             icon={Banknote}
                             label="Total Revenue"
@@ -265,42 +334,34 @@ const Dashboard = () => {
                             changeType="up"
                             color="bg-indigo-500"
                         />
-                        {/* <StatCard
-                            icon={Star}
-                            label="Avg. Rating"
-                            value={avgRating}
-                            change="+0.3"
-                            changeType="up"
-                            color="bg-emerald-500"
-                        /> */}
                     </div>
 
 
                     {/* Middle Row: Chart + Top Products */}
-                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
 
                         {/* Revenue Chart */}
-                        <div className="xl:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                            <div className="flex items-center justify-between mb-6">
+                        <div className="lg:col-span-2 bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-gray-100">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
                                 <div>
                                     <h2 className="font-bold text-gray-800">Monthly Revenue</h2>
                                     <p className="text-xs text-gray-400 mt-0.5">Jan – Jun 2026</p>
                                 </div>
-                                <span className="flex items-center gap-1 text-xs bg-green-50 text-green-600 font-semibold px-2.5 py-1 rounded-full">
+                                <span className="flex items-center gap-1 text-xs bg-green-50 text-green-600 font-semibold px-2.5 py-1 rounded-full w-fit">
                                     <ArrowUp className="h-3 w-3" /> +23% vs last period
                                 </span>
                             </div>
 
 
                             {/* Bar Chart */}
-                            <div className="flex items-end gap-4 h-44">
+                            <div className="flex items-end gap-2 md:gap-4 h-40 md:h-44 overflow-x-auto pb-2">
                                 {monthlyRevenue.map((m) => (
-                                    <div key={m.month} className="flex-1 flex flex-col items-center gap-2">
-                                        <span className="text-[10px] text-gray-400 font-medium">৳{(m.revenue / 1000).toFixed(0)}k</span>
+                                    <div key={m.month} className="flex-1 flex flex-col items-center gap-2 min-w-12">
+                                        <span className="text-[8px] md:text-[10px] text-gray-400 font-medium truncate">৳{(m.revenue / 1000).toFixed(0)}k</span>
                                         <div
                                             className="w-full rounded-t-lg bg-[#4A0E1B] hover:bg-[#F5C518] transition-colors duration-200 cursor-pointer"
-                                            style={{ height: `${(m.revenue / maxRevenue) * 140}px` }}
+                                            style={{ height: `${(m.revenue / maxRevenue) * 140}px`, minWidth: '8px' }}
                                             title={`৳${m.revenue.toLocaleString()}`}
                                         ></div>
                                         <span className="text-xs text-gray-500">{m.month}</span>
@@ -311,9 +372,9 @@ const Dashboard = () => {
 
 
                         {/* Top Products */}
-                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                        <div className="bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-gray-100">
                             <div className="flex items-center justify-between mb-6">
-                                <h2 className="font-bold text-gray-800">Top Products</h2>
+                                <h2 className="font-bold text-gray-800 text-sm md:text-base">Top Products</h2>
                                 <Link to="/admin/orders" className="text-xs text-[#6A0D25] font-semibold hover:underline flex items-center gap-1">
                                     View All <ChevronRight className="h-3 w-3" />
                                 </Link>
@@ -338,44 +399,44 @@ const Dashboard = () => {
 
 
                     {/* Bottom Row: Recent Orders + Cart Summary */}
-                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
 
                         {/* Recent Orders Table */}
-                        <div className="xl:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-                                <h2 className="font-bold text-gray-800">Recent Orders</h2>
+                        <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                            <div className="flex items-center justify-between px-4 md:px-6 py-4 md:py-5 border-b border-gray-100">
+                                <h2 className="font-bold text-gray-800 text-sm md:text-base">Recent Orders</h2>
                                 <Link to="/admin/orders" className="text-xs text-[#6A0D25] font-semibold hover:underline flex items-center gap-1">
                                     View All <ChevronRight className="h-3 w-3" />
                                 </Link>
                             </div>
                             <div className="overflow-x-auto">
-                                <table className="w-full text-sm">
+                                <table className="w-full text-xs md:text-sm">
                                     <thead className="bg-[#FDFBF7]">
                                         <tr>
-                                            <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Order ID</th>
-                                            <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Item</th>
-                                            <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Date</th>
-                                            <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
-                                            <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Amount</th>
+                                            <th className="text-left px-4 md:px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Order ID</th>
+                                            <th className="hidden sm:table-cell text-left px-4 md:px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Item</th>
+                                            <th className="hidden md:table-cell text-left px-4 md:px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Date</th>
+                                            <th className="text-left px-4 md:px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
+                                            <th className="text-right px-4 md:px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Amount</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-50">
                                         {allOrders.length === 0 ? (
                                             <tr>
-                                                <td colSpan="5" className="px-6 py-10 text-center text-gray-400 italic">No orders found in the system yet.</td>
+                                                <td colSpan="5" className="px-4 md:px-6 py-10 text-center text-gray-400 italic">No orders found in the system yet.</td>
                                             </tr>
                                         ) : (
                                             allOrders.slice(0, 10).map((order) => (
                                                 <tr key={order.orderId} className="hover:bg-gray-50 transition">
-                                                    <td className="px-6 py-4 text-[#6A0D25] font-medium">{order.orderId}</td>
-                                                    <td className="px-6 py-4">
-                                                        <p className="font-medium text-gray-800">{order.items[0]?.name || 'N/A'}</p>
-                                                        <p className="text-xs text-gray-400">{order.customerEmail}</p>
+                                                    <td className="px-4 md:px-6 py-4 text-[#6A0D25] font-medium text-xs md:text-sm">{order.orderId}</td>
+                                                    <td className="hidden sm:table-cell px-4 md:px-6 py-4">
+                                                        <p className="font-medium text-gray-800 text-xs md:text-sm truncate">{order.items[0]?.name || 'N/A'}</p>
+                                                        <p className="text-xs text-gray-400 truncate">{order.customerEmail}</p>
                                                     </td>
-                                                    <td className="px-6 py-4 text-gray-500">{order.date}</td>
-                                                    <td className="px-6 py-4">{statusBadge(order.status)}</td>
-                                                    <td className="px-6 py-4 text-right font-bold text-gray-800">৳{order.totalAmount.toLocaleString()}</td>
+                                                    <td className="hidden md:table-cell px-4 md:px-6 py-4 text-gray-500 text-xs md:text-sm">{order.date}</td>
+                                                    <td className="px-4 md:px-6 py-4">{statusBadge(order.status)}</td>
+                                                    <td className="px-4 md:px-6 py-4 text-right font-bold text-gray-800 text-xs md:text-sm">৳{order.totalAmount.toLocaleString()}</td>
                                                 </tr>
                                             ))
                                         )}
@@ -388,7 +449,7 @@ const Dashboard = () => {
                         {/* Cart & Quick Actions */}
                         <div className="space-y-5">
                             {/* Current Cart */}
-                            <div className="bg-[#4A0E1B] text-white rounded-2xl p-6 shadow-md">
+                            <div className="bg-[#4A0E1B] text-white rounded-2xl p-4 md:p-6 shadow-md">
                                 <div className="flex items-center justify-between mb-5">
                                     <h2 className="font-bold">Current Cart</h2>
                                     <span className="bg-[#F5C518] text-[#4A0E1B] text-xs font-bold px-2.5 py-1 rounded-full">{cart.length} items</span>
@@ -420,28 +481,28 @@ const Dashboard = () => {
 
 
                             {/* Quick Actions */}
-                            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                                <h2 className="font-bold text-gray-800 mb-4">Quick Actions</h2>
-                                <div className="space-y-3">
-                                    <Link to="/admin/inventory" className="flex items-center gap-3 p-3 rounded-xl hover:bg-[#FDFBF7] border border-gray-100 transition">
-                                        <ShoppingBag className="h-5 w-5 text-[#6A0D25]" />
-                                        <span className="text-sm font-medium text-gray-700">Browse Products</span>
-                                        <ChevronRight className="h-4 w-4 text-gray-400 ml-auto" />
+                            <div className="bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-gray-100">
+                                <h2 className="font-bold text-gray-800 mb-4 text-sm md:text-base">Quick Actions</h2>
+                                <div className="space-y-2 md:space-y-3">
+                                    <Link to="/admin/inventory" className="flex items-center gap-3 p-2 md:p-3 rounded-xl hover:bg-[#FDFBF7] border border-gray-100 transition text-sm">
+                                        <ShoppingBag className="h-5 w-5 text-[#6A0D25] shrink-0" />
+                                        <span className="font-medium text-gray-700 truncate">Browse Products</span>
+                                        <ChevronRight className="h-4 w-4 text-gray-400 ml-auto shrink-0" />
                                     </Link>
-                                    <Link to="/cart" className="flex items-center gap-3 p-3 rounded-xl hover:bg-[#FDFBF7] border border-gray-100 transition">
-                                        <ShoppingCart className="h-5 w-5 text-[#6A0D25]" />
-                                        <span className="text-sm font-medium text-gray-700">Go to Cart</span>
-                                        <ChevronRight className="h-4 w-4 text-gray-400 ml-auto" />
+                                    <Link to="/cart" className="flex items-center gap-3 p-2 md:p-3 rounded-xl hover:bg-[#FDFBF7] border border-gray-100 transition text-sm">
+                                        <ShoppingCart className="h-5 w-5 text-[#6A0D25] shrink-0" />
+                                        <span className="font-medium text-gray-700 truncate">Go to Cart</span>
+                                        <ChevronRight className="h-4 w-4 text-gray-400 ml-auto shrink-0" />
                                     </Link>
-                                    <Link to="/checkout" className="flex items-center gap-3 p-3 rounded-xl hover:bg-[#FDFBF7] border border-gray-100 transition">
-                                        <ClipboardList className="h-5 w-5 text-[#6A0D25]" />
-                                        <span className="text-sm font-medium text-gray-700">Checkout</span>
-                                        <ChevronRight className="h-4 w-4 text-gray-400 ml-auto" />
+                                    <Link to="/checkout" className="flex items-center gap-3 p-2 md:p-3 rounded-xl hover:bg-[#FDFBF7] border border-gray-100 transition text-sm">
+                                        <ClipboardList className="h-5 w-5 text-[#6A0D25] shrink-0" />
+                                        <span className="font-medium text-gray-700 truncate">Checkout</span>
+                                        <ChevronRight className="h-4 w-4 text-gray-400 ml-auto shrink-0" />
                                     </Link>
-                                    <button onClick={handleLogout} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-red-50 border border-gray-100 transition">
-                                        <LogOut className="h-5 w-5 text-red-500" />
-                                        <span className="text-sm font-medium text-red-500">Sign Out</span>
-                                        <ChevronRight className="h-4 w-4 text-red-300 ml-auto" />
+                                    <button onClick={handleLogout} className="w-full flex items-center gap-3 p-2 md:p-3 rounded-xl hover:bg-red-50 border border-gray-100 transition text-sm">
+                                        <LogOut className="h-5 w-5 text-red-500 shrink-0" />
+                                        <span className="font-medium text-red-500 truncate">Sign Out</span>
+                                        <ChevronRight className="h-4 w-4 text-red-300 ml-auto shrink-0" />
                                     </button>
                                 </div>
                             </div>
@@ -451,6 +512,76 @@ const Dashboard = () => {
                     </div>
                 </main>
             </div>
+
+            {/* Edit Profile Modal */}
+            {editProfileOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+                        <div className="bg-[#4A0E1B] text-white px-6 py-4 flex items-center justify-between">
+                            <h2 className="text-lg font-bold">Edit Profile</h2>
+                            <button onClick={() => setEditProfileOpen(false)} className="p-1 hover:bg-white/20 rounded-full transition">
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+
+                        <div className="p-6 space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Display Name</label>
+                                <input
+                                    type="text"
+                                    value={profileData.displayName}
+                                    onChange={(e) => setProfileData({ ...profileData, displayName: e.target.value })}
+                                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4A0E1B]/20"
+                                    placeholder="Your name"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                <input
+                                    type="email"
+                                    value={user?.email || ''}
+                                    disabled
+                                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Photo URL</label>
+                                <input
+                                    type="text"
+                                    value={profileData.photoURL}
+                                    onChange={(e) => setProfileData({ ...profileData, photoURL: e.target.value })}
+                                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4A0E1B]/20"
+                                    placeholder="https://example.com/photo.jpg"
+                                />
+                            </div>
+
+                            {profileData.photoURL && (
+                                <div className="flex justify-center pt-2">
+                                    <img src={profileData.photoURL} alt="Preview" className="w-16 h-16 rounded-lg object-cover border border-gray-200" />
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex gap-3">
+                            <button
+                                onClick={() => setEditProfileOpen(false)}
+                                className="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleProfileUpdate}
+                                className="flex-1 px-4 py-2.5 bg-[#4A0E1B] text-white rounded-lg font-medium hover:bg-[#6A1A2A] transition"
+                            >
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

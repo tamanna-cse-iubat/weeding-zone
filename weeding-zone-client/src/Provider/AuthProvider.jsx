@@ -4,6 +4,7 @@ import {
     createUserWithEmailAndPassword,
     getAuth,
     onAuthStateChanged,
+    sendEmailVerification,
     sendPasswordResetEmail,
     signInWithEmailAndPassword,
     signOut,
@@ -63,23 +64,46 @@ const AuthProvider = ({ children }) => {
         return signOut(auth);
     }
 
-    const manageUserProfile = (name, photo, phone) => {
+    const manageUserProfile = async (name, photo, phone) => {
         setLoading(true);
-        // Update Firebase profile
-        updateProfile(auth.currentUser, {
-            displayName: name,
-            photoURL: photo
-        });
+        try {
+            if (!auth.currentUser) {
+                throw new Error('No authenticated user');
+            }
+            await updateProfile(auth.currentUser, {
+                displayName: name,
+                photoURL: photo || auth.currentUser.photoURL || ''
+            });
 
-        // Save phone and other details to localStorage
-        if (user?.email) {
-            const userProfile = {
-                email: user.email,
-                phone: phone || '',
-                name: name,
-                memberSince: localStorage.getItem(`user_memberSince_${user.email}`) || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-            };
-            localStorage.setItem(`user_profile_${user.email}`, JSON.stringify(userProfile));
+            const currentUser = auth.currentUser;
+            setUser(currentUser);
+
+            if (currentUser?.email) {
+                const userProfile = {
+                    email: currentUser.email,
+                    phone: phone || '',
+                    name,
+                    photoURL: photo || currentUser.photoURL || '',
+                    memberSince: localStorage.getItem(`user_memberSince_${currentUser.email}`) || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+                };
+                localStorage.setItem(`user_profile_${currentUser.email}`, JSON.stringify(userProfile));
+            }
+
+            return currentUser;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const sendVerificationEmail = async () => {
+        setLoading(true);
+        try {
+            if (!auth.currentUser) {
+                throw new Error('No authenticated user');
+            }
+            return await sendEmailVerification(auth.currentUser);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -103,6 +127,7 @@ const AuthProvider = ({ children }) => {
         setWishlist,
         resetPassword,
         manageUserProfile,
+        sendVerificationEmail,
         getUserProfile
     }
 

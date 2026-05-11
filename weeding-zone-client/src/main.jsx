@@ -28,14 +28,17 @@ import InventoryManagement from './assets/Components/Dashboard/InventoryManageme
 import AdminRoute from './Provider/AdminRoute.jsx'
 import OrderManagment from './assets/Components/Dashboard/OrderManagment.jsx'
 
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || '';
+
 const productLoader = async () => {
-  const savedProducts = localStorage.getItem('managed_products');
-  if (savedProducts) {
-    return JSON.parse(savedProducts);
+  try {
+    const res = await axios.get('/api/products');
+    return res.data;
+  } catch (error) {
+    console.error('Unable to fetch products from backend, falling back to product.json', error);
+    const res = await axios.get('/product.json');
+    return res.data;
   }
-  const res = await axios.get('/product.json');
-  localStorage.setItem('managed_products', JSON.stringify(res.data));
-  return res.data;
 };
 
 const router = createBrowserRouter([{

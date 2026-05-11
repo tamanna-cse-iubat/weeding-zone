@@ -1,6 +1,8 @@
 import React, { useContext, useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router';
 import { AuthContext } from '../../../Provider/AuthProvider';
+import axios from 'axios';
+import Swal from 'sweetalert2';
 import {
     ChevronRightIcon,
     ChevronLeftIcon,
@@ -62,7 +64,7 @@ const Checkout = () => {
         return sum + (item.rent_for_days || 3);
     }, 0);
 
-    const handlePlaceOrder = (e) => {
+    const handlePlaceOrder = async (e) => {
         e.preventDefault();
 
         // Validate payment details
@@ -132,12 +134,24 @@ const Checkout = () => {
             timestamp: new Date().getTime()
         };
 
-        // Save to localStorage
-        const existingOrders = JSON.parse(localStorage.getItem('wedding_orders') || '[]');
-        localStorage.setItem('wedding_orders', JSON.stringify([orderData, ...existingOrders]));
-
-        setCart([]);
-        navigate("/thank-you", { state: { order: orderData } });
+        try {
+            await axios.post('/api/orders', orderData);
+            
+            // Trigger notifications
+            notificationService.notifyAdminNewOrder(orderData);
+            notificationService.notifyProfileUpdate(user.email);
+            
+            setCart([]);
+            navigate("/thank-you", { state: { order: orderData } });
+        } catch (error) {
+            console.error('Order submission failed:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Order Failed',
+                text: 'Could not submit your order. Please try again.',
+                confirmButtonColor: '#4A0E0E'
+            });
+        }
     };
 
     return (

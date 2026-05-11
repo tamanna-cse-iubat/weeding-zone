@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import {
     Search, Package, Truck, CheckCircle, Clock, X, Plus, Trash2,
     Tag, ChevronDown, Eye, TicketPercent, FileDown
@@ -49,11 +50,19 @@ const OrderManagment = () => {
 
     // Load orders from localStorage
     useEffect(() => {
-        const raw = JSON.parse(localStorage.getItem('wedding_orders') || '[]');
-        // Ensure every order has a status field
-        const normalised = raw.map(o => ({ ...o, status: o.status || 'Pending' }));
-        setOrders(normalised);
-        setFiltered(normalised);
+        const loadOrders = async () => {
+            try {
+                const res = await axios.get('/api/orders');
+                const normalised = res.data.map(o => ({ ...o, status: o.status || 'Pending' }));
+                setOrders(normalised);
+                setFiltered(normalised);
+            } catch (error) {
+                console.error('Failed to load orders:', error);
+                setOrders([]);
+                setFiltered([]);
+            }
+        };
+        loadOrders();
     }, []);
 
     // Filter orders
@@ -73,6 +82,16 @@ const OrderManagment = () => {
 
     // ── PDF Report ──────────────────────────────────────────────────────────
     const generateReport = () => {
+        // Calculate stats locally
+        const reportStats = {
+            total: orders.length,
+            pending: orders.filter(o => o.status === 'Pending').length,
+            confirmed: orders.filter(o => o.status === 'Confirmed').length,
+            shipped: orders.filter(o => o.status === 'Shipped').length,
+            delivered: orders.filter(o => o.status === 'Delivered').length,
+            revenue: orders.filter(o => o.status !== 'Cancelled').reduce((s, o) => s + (o.totalAmount || 0), 0),
+        };
+
         const doc = new jsPDF();
         const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
         const brandColor = [74, 14, 27]; // #4A0E1B
@@ -103,12 +122,12 @@ const OrderManagment = () => {
         y += 6;
 
         const summaryData = [
-            ['Total Orders', stats.total],
-            ['Pending',      stats.pending],
-            ['Confirmed',    stats.confirmed],
-            ['Shipped',      stats.shipped],
-            ['Delivered',    stats.delivered],
-            ['Total Revenue', 'BDT ' + stats.revenue.toLocaleString()],
+            ['Total Orders', reportStats.total],
+            ['Pending',      reportStats.pending],
+            ['Confirmed',    reportStats.confirmed],
+            ['Shipped',      reportStats.shipped],
+            ['Delivered',    reportStats.delivered],
+            ['Total Revenue', 'BDT ' + reportStats.revenue.toLocaleString()],
         ];
 
         autoTable(doc, {
@@ -209,10 +228,8 @@ const OrderManagment = () => {
         Swal.fire({ icon: 'success', title: 'Report Downloaded!', text: 'Your PDF report has been saved.', timer: 1800, showConfirmButton: false });
     };
 
-    // Persist orders
     const saveOrders = (updated) => {
         setOrders(updated);
-        localStorage.setItem('wedding_orders', JSON.stringify(updated));
     };
 
     // Persist coupons
@@ -222,11 +239,30 @@ const OrderManagment = () => {
     };
 
     // Update single order status
-    const updateStatus = (orderId, newStatus) => {
+    const updateStatus = async (orderId, newStatus) => {
+        // Optimistic update: update local state first
+        const previousOrders = [...orders];
+        const previousSelected = selectedOrder;
         const updated = orders.map(o => o.orderId === orderId ? { ...o, status: newStatus } : o);
         saveOrders(updated);
         if (selectedOrder?.orderId === orderId) setSelectedOrder(prev => ({ ...prev, status: newStatus }));
         Swal.fire({ icon: 'success', title: 'Status Updated', text: `Order ${orderId} → ${newStatus}`, timer: 1500, showConfirmButton: false });
+
+        try {
+            const updatedOrder = { ...previousOrders.find(o => o.orderId === orderId), status: newStatus };
+            await axios.put(`/api/orders/${encodeURIComponent(orderId)}`, { status: newStatus });
+            
+            // Notify customer of status change
+            if (updatedOrder.customerEmail) {
+                notificationService.notifyCustomerOrderStatus(updatedOrder, updatedOrder.customerEmail);
+            }
+        } catch (error) {
+            console.error('Failed to update order status:', error);
+            // Revert on failure
+            saveOrders(previousOrders);
+            if (previousSelected?.orderId === orderId) setSelectedOrder(previousSelected);
+            Swal.fire({ icon: 'error', title: 'Update Failed', text: 'Unable to update order status. Changes reverted.', timer: 3000, showConfirmButton: false });
+        }
     };
 
     const cancelOrder = (orderId) => {
@@ -236,7 +272,7 @@ const OrderManagment = () => {
 
     // Coupon CRUD
     const addCoupon = () => {
-        if (!couponForm.code || !couponForm.discount) return Swal.fire('Error', 'Fill in all fields.', 'error');
+        if (!couponForm.code || !couponForm.discount) return Swal.fire({ title: 'Error', text: 'Fill in all fields.', icon: 'error' });
         const newC = { ...couponForm, id: Date.now(), discount: Number(couponForm.discount) };
         saveCoupons([...coupons, newC]);
         setCouponForm({ code: '', discount: '', type: 'percent', active: true });

@@ -4,9 +4,11 @@ import { AuthContext } from '../../../Provider/AuthProvider';
 import Swal from 'sweetalert2';
 
 const SignIn = () => {
-    const { signInUser, user, resetPassword } = use(AuthContext);
+    const { signInUser, user, resetPassword, sendVerificationEmail } = use(AuthContext);
     const [error, seterror] = useState('');
     const [success, setSuccess] = useState('');
+    const [showForgotForm, setShowForgotForm] = useState(false);
+    const [forgotEmail, setForgotEmail] = useState('');
     const navigate = useNavigate();
     const emailRef = useRef();
 
@@ -18,7 +20,7 @@ const SignIn = () => {
 
     const handleReset = (e) => {
         e.preventDefault();
-        const email = emailRef.current.value;
+        const email = forgotEmail || emailRef.current.value;
         if (!email) {
             seterror('Please enter your email address first.');
             return;
@@ -32,6 +34,8 @@ const SignIn = () => {
                     icon: 'success',
                     confirmButtonColor: '#7F3D27'
                 });
+                setForgotEmail('');
+                setShowForgotForm(false);
                 seterror('');
             })
             .catch((error) => {

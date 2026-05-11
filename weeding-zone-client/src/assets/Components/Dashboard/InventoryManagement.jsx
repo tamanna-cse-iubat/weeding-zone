@@ -27,16 +27,8 @@ const InventoryManagement = () => {
 
     const fetchProducts = async () => {
         try {
-            // In a real app, we would fetch from a database API.
-            // For this project, we check localStorage first, then fallback to product.json
-            const savedProducts = localStorage.getItem('managed_products');
-            if (savedProducts) {
-                setProducts(JSON.parse(savedProducts));
-            } else {
-                const res = await axios.get('/product.json');
-                setProducts(res.data);
-                localStorage.setItem('managed_products', JSON.stringify(res.data));
-            }
+            const res = await axios.get('/api/products');
+            setProducts(res.data);
         } catch (error) {
             console.error("Error fetching products:", error);
             Swal.fire('Error', 'Failed to load products', 'error');
@@ -80,26 +72,31 @@ const InventoryManagement = () => {
         setIsModalOpen(true);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        let updatedProducts;
-        if (editingProduct) {
-            updatedProducts = products.map(p => p.id === editingProduct.id ? { ...formData, id: p.id } : p);
-            Swal.fire('Updated!', 'Product has been updated successfully.', 'success');
-        } else {
-            const newProduct = {
-                ...formData,
-                id: products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1
-            };
-            updatedProducts = [...products, newProduct];
-            Swal.fire('Added!', 'New product has been added to inventory.', 'success');
+        try {
+            let updatedProducts;
+            if (editingProduct) {
+                const response = await axios.put(`/api/products/${editingProduct.id}`, formData);
+                updatedProducts = products.map(p => p.id === editingProduct.id ? response.data : p);
+                Swal.fire('Updated!', 'Product has been updated successfully.', 'success');
+            } else {
+                const response = await axios.post('/api/products', {
+                    ...formData,
+                    id: products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1
+                });
+                updatedProducts = [...products, response.data];
+                Swal.fire('Added!', 'New product has been added to inventory.', 'success');
+            }
+            setProducts(updatedProducts);
+            setIsModalOpen(false);
+        } catch (error) {
+            console.error('Failed to save product:', error);
+            Swal.fire('Error', 'Could not save product to the server.', 'error');
         }
-        setProducts(updatedProducts);
-        localStorage.setItem('managed_products', JSON.stringify(updatedProducts));
-        setIsModalOpen(false);
     };
 
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
         Swal.fire({
             title: 'Are you sure?',
             text: "You won't be able to revert this!",
@@ -108,12 +105,17 @@ const InventoryManagement = () => {
             confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
             confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
+        }).then(async (result) => {
             if (result.isConfirmed) {
-                const updatedProducts = products.filter(p => p.id !== id);
-                setProducts(updatedProducts);
-                localStorage.setItem('managed_products', JSON.stringify(updatedProducts));
-                Swal.fire('Deleted!', 'Product has been removed.', 'success');
+                try {
+                    await axios.delete(`/api/products/${id}`);
+                    const updatedProducts = products.filter(p => p.id !== id);
+                    setProducts(updatedProducts);
+                    Swal.fire('Deleted!', 'Product has been removed.', 'success');
+                } catch (error) {
+                    console.error('Failed to delete product:', error);
+                    Swal.fire('Error', 'Could not delete product from the server.', 'error');
+                }
             }
         });
     };

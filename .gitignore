@@ -1,2 +1,6 @@
 node_modules
 weeding-zone-client/dist
+*.env
+**/.env
+weeding-zone-client/.env*
+weeding-zone-server/.env

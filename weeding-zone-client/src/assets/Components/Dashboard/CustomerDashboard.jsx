@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
+import axios from 'axios';
 import Swal from 'sweetalert2';
 import { AuthContext } from '../../../Provider/AuthProvider';
 import {
@@ -31,7 +32,8 @@ const CustomerDashboard = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({
         name: user?.displayName || '',
-        phone: ''
+        phone: '',
+        photoURL: user?.photoURL || ''
     });
     const [userProfile, setUserProfile] = useState(null);
     const [updating, setUpdating] = useState(false);
@@ -44,7 +46,8 @@ const CustomerDashboard = () => {
                 setUserProfile(profile);
                 setFormData({
                     name: profile.name || user?.displayName || '',
-                    phone: profile.phone || ''
+                    phone: profile.phone || '',
+                    photoURL: profile.photoURL || user?.photoURL || ''
                 });
             } else {
                 // Create new profile on first visit
@@ -52,6 +55,7 @@ const CustomerDashboard = () => {
                     email: user.email,
                     phone: '',
                     name: user?.displayName || '',
+                    photoURL: user?.photoURL || '',
                     memberSince: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
                 };
                 localStorage.setItem(`user_memberSince_${user.email}`, newProfile.memberSince);
@@ -59,22 +63,37 @@ const CustomerDashboard = () => {
                 setUserProfile(newProfile);
                 setFormData({
                     name: newProfile.name,
-                    phone: newProfile.phone
+                    phone: newProfile.phone,
+                    photoURL: newProfile.photoURL
                 });
             }
         }
     }, [user, getUserProfile]);
 
-    const loadOrders = () => {
-        const allOrders = JSON.parse(localStorage.getItem('wedding_orders') || '[]');
-        const userOrders = allOrders.filter(order => order.customerEmail === user?.email);
-        setOrders(userOrders);
-        setLoading(false);
+    const loadOrders = async () => {
+        if (!user?.email) {
+            setOrders([]);
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const res = await axios.get('/api/orders', {
+                params: {
+                    email: user.email,
+                }
+            });
+            setOrders(res.data);
+        } catch (error) {
+            console.error('Failed to load customer orders:', error);
+            setOrders([]);
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => {
         loadOrders();
-        // Poll every 10 seconds so admin status changes appear without page refresh
         const interval = setInterval(loadOrders, 10000);
         return () => clearInterval(interval);
     }, [user]);
@@ -83,20 +102,18 @@ const CustomerDashboard = () => {
         e.preventDefault();
         setUpdating(true);
         try {
-            // Update Firebase profile with name
-            await manageUserProfile(formData.name, user?.photoURL, formData.phone);
+            await manageUserProfile(formData.name, formData.photoURL, formData.phone);
 
-            // Update local state
             const updatedProfile = {
                 email: user?.email,
                 name: formData.name,
                 phone: formData.phone,
+                photoURL: formData.photoURL,
                 memberSince: userProfile?.memberSince || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
             };
             localStorage.setItem(`user_profile_${user?.email}`, JSON.stringify(updatedProfile));
             setUserProfile(updatedProfile);
             setIsEditing(false);
-            
 
             Swal.fire({
                 icon: 'success',
@@ -105,8 +122,6 @@ const CustomerDashboard = () => {
                 timer: 1500,
                 showConfirmButton: false,
             });
-            
-            
         } catch (error) {
             console.error("Failed to update profile:", error);
             Swal.fire({
@@ -117,9 +132,7 @@ const CustomerDashboard = () => {
             });
         } finally {
             setUpdating(false);
-            
         }
-        
     };
 
     // Calculate real stats
@@ -169,8 +182,14 @@ const CustomerDashboard = () => {
                     <div className="bg-[#4A0E0E] rounded-2xl p-6 text-white relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -mr-8 -mt-8 blur-2xl"></div>
                         <div className="relative flex flex-col items-center text-center">
-                            <div className="w-16 h-16 rounded-full bg-gray-200 border-2 border-white/20 mb-3 flex items-center justify-center overflow-hidden">
-                                <User className="w-8 h-8 text-gray-400" />
+                            <div className="w-20 h-20 rounded-full bg-gray-200 border-2 border-white/20 mb-3 overflow-hidden">
+                                {(userProfile?.photoURL || user?.photoURL) ? (
+                                    <img src={userProfile?.photoURL || user.photoURL} alt={user?.displayName || 'Profile'} className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center">
+                                        <User className="w-10 h-10 text-gray-400" />
+                                    </div>
+                                )}
                             </div>
                             <h3 className="font-bold text-lg">{user?.displayName || 'Guest User'}</h3>
                             <p className="text-white/70 text-xs truncate w-full">{user?.email || 'guest@example.com'}</p>
@@ -376,19 +395,24 @@ const CustomerDashboard = () => {
                                     </div>
 
                                     <div>
-                                        <p className="text-gray-400 text-[10px] uppercase tracking-wider font-bold mb-1">Phone</p>
+                                        <p className="text-gray-400 text-[10px] uppercase tracking-wider font-bold mb-1">Photo URL</p>
                                         {isEditing ? (
                                             <input
-                                                type="tel"
-                                                placeholder="01XXXXXXXXX"
+                                                type="url"
+                                                placeholder="https://example.com/photo.jpg"
                                                 className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-rose-300"
-                                                value={formData.phone}
-                                                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                                value={formData.photoURL}
+                                                onChange={(e) => setFormData({ ...formData, photoURL: e.target.value })}
                                             />
                                         ) : (
-                                            <p className="text-gray-800 text-sm font-medium">{userProfile?.phone || formData.phone || 'Not provided'}</p>
+                                            <p className="text-gray-800 text-sm font-medium truncate">{user?.photoURL || 'No photo set'}</p>
                                         )}
                                     </div>
+                                    {isEditing && formData.photoURL && (
+                                        <div className="flex justify-center">
+                                            <img src={formData.photoURL} alt="Profile preview" className="w-20 h-20 rounded-full object-cover border border-gray-200" />
+                                        </div>
+                                    )}
 
                                     <div>
                                         <p className="text-gray-400 text-[10px] uppercase tracking-wider font-bold mb-1">Member Since</p>
@@ -396,11 +420,11 @@ const CustomerDashboard = () => {
                                     </div>
 
                                     {isEditing && (
-                                        <div className="flex gap-2 pt-2">
+                                        <div className="flex gap-2 pt-2 flex-col sm:flex-row">
                                             <button
                                                 type="submit"
                                                 disabled={updating}
-                                                className="flex-1 bg-rose-600 text-white text-xs font-bold py-2 rounded-lg hover:bg-rose-700 transition disabled:opacity-50"
+                                                className="w-full sm:flex-1 bg-rose-600 text-white text-xs font-bold py-2 rounded-lg hover:bg-rose-700 transition disabled:opacity-50"
                                             >
                                                 {updating ? 'Saving...' : 'Save Changes'}
                                             </button>
@@ -410,10 +434,11 @@ const CustomerDashboard = () => {
                                                     setIsEditing(false);
                                                     setFormData({
                                                         name: userProfile?.name || user?.displayName || '',
-                                                        phone: userProfile?.phone || ''
+                                                        phone: userProfile?.phone || '',
+                                                        photoURL: userProfile?.photoURL || user?.photoURL || ''
                                                     });
                                                 }}
-                                                className="flex-1 bg-gray-100 text-gray-600 text-xs font-bold py-2 rounded-lg hover:bg-gray-200 transition"
+                                                className="w-full sm:flex-1 bg-gray-100 text-gray-600 text-xs font-bold py-2 rounded-lg hover:bg-gray-200 transition"
                                             >
                                                 Cancel
                                             </button>
