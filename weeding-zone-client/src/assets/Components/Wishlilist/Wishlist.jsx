@@ -141,7 +141,7 @@ const Wishlist = () => {
                     ))}
                 </div>
 
-                {/* Promotion Section */}
+                
                 
             </div>
         </div>
