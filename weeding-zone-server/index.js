@@ -333,11 +333,18 @@ async function start() {
     });
 
     app.put('/api/products/:id', async (req, res) => {
-      const query = parseProductQuery(req.params.id);
-      const update = { $set: { ...req.body, updatedAt: new Date() } };
-      const result = await products.findOneAndUpdate(query, update, { returnDocument: 'after' });
-      if (!result.value) return res.status(404).send({ error: 'Product not found' });
-      res.send(result.value);
+      try {
+        const query = parseProductQuery(req.params.id);
+        const { _id, ...updateData } = req.body;
+        const update = { $set: { ...updateData, updatedAt: new Date() } };
+        // mongodb driver v7: findOneAndUpdate returns the document directly (not result.value)
+        const result = await products.findOneAndUpdate(query, update, { returnDocument: 'after' });
+        if (!result) return res.status(404).send({ error: 'Product not found' });
+        res.send(result);
+      } catch (err) {
+        console.error('PUT /api/products error:', err);
+        res.status(500).send({ error: 'Failed to update product' });
+      }
     });
 
     app.delete('/api/products/:id', async (req, res) => {

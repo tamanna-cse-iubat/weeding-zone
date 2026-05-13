@@ -249,13 +249,7 @@ const OrderManagment = () => {
         Swal.fire({ icon: 'success', title: 'Status Updated', text: `Order ${orderId} → ${newStatus}`, timer: 1500, showConfirmButton: false });
 
         try {
-            const updatedOrder = { ...previousOrders.find(o => o.orderId === orderId), status: newStatus };
             await axios.put(`/api/orders/${encodeURIComponent(orderId)}`, { status: newStatus });
-            
-            // Notify customer of status change
-            if (updatedOrder.customerEmail) {
-                notificationService.notifyCustomerOrderStatus(updatedOrder, updatedOrder.customerEmail);
-            }
         } catch (error) {
             console.error('Failed to update order status:', error);
             // Revert on failure

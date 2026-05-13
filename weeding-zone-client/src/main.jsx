@@ -27,6 +27,7 @@ import SearchResults from './assets/Components/CategoryProducts/SearchResults.js
 import InventoryManagement from './assets/Components/Dashboard/InventoryManagement.jsx'
 import AdminRoute from './Provider/AdminRoute.jsx'
 import OrderManagment from './assets/Components/Dashboard/OrderManagment.jsx'
+import Contact from './assets/Components/Contact/Contact.jsx'
 
 axios.defaults.baseURL = import.meta.env.VITE_API_URL || '';
 
@@ -59,6 +60,10 @@ const router = createBrowserRouter([{
     {
       path: '/signin',
       Component: SignIn
+    },
+    {
+      path: '/contact',
+      Component: Contact
     },
     {
       path: '/category/:categoryName',
