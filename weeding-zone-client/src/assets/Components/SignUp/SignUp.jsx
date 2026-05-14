@@ -5,11 +5,11 @@ import { AuthContext } from '../../../Provider/AuthProvider';
 
 
 const SignUp = () => {
-    const { createUser, setUser, user } = use(AuthContext);
+    const { createUser, setUser, user, sendVerificationEmail, logOut } = use(AuthContext);
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (user) {
+        if (user && user.emailVerified) {
             navigate('/');
         }
     }, [user, navigate]);
@@ -20,14 +20,31 @@ const SignUp = () => {
         const name = form.name.value;
         const email = form.email.value;
         const password = form.password.value;
-        //console.log(name, email, password);
+        
         createUser(email, password)
             .then((result) => {
-                const user = result.user;
-                setUser(user);
-                navigate('/');
+                const newUser = result.user;
+                
+                // Send verification email
+                sendVerificationEmail()
+                    .then(() => {
+                        Swal.fire({
+                            title: 'Verification Email Sent',
+                            text: 'Please check your inbox and verify your email before logging in.',
+                            icon: 'info',
+                            confirmButtonColor: '#7F3D27'
+                        });
+                        
+                        // Optionally log them out until they verify
+                        logOut();
+                        navigate('/signin');
+                    })
+                    .catch((error) => {
+                        console.error("Error sending verification email:", error);
+                        setUser(newUser);
+                        navigate('/');
+                    });
             }).catch((error) => {
-                const errorCode = error.code;
                 const errorMassage = error.message;
                 Swal.fire({
                     title: 'Registration Failed',

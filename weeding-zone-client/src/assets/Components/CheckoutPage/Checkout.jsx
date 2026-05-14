@@ -7,6 +7,7 @@ import {
     ChevronRightIcon,
     ChevronLeftIcon,
 } from '@heroicons/react/24/outline';
+import { addNotification } from '../../../utils/notificationService';
 import {
     LockClosedIcon,
     TruckIcon,
@@ -109,11 +110,23 @@ const Checkout = () => {
             }
         }
 
+        const formData = new FormData(e.target);
+        const shippingDetails = {
+            firstName: formData.get('firstName'),
+            lastName: formData.get('lastName'),
+            email: formData.get('email'),
+            phone: formData.get('phone'),
+            address: formData.get('address'),
+            city: formData.get('city'),
+            postcode: formData.get('postcode'),
+            notes: formData.get('notes')
+        };
+
         // Prepare order data
         const orderData = {
-            orderId: `#WZ${Math.floor(10000 + Math.random() * 90000)}`,
-            customerEmail: user.email,
-            customerName: user.displayName || user.email,
+            orderId: `WZ-${Math.floor(10000 + Math.random() * 90000)}`,
+            customerEmail: formData.get('email') || user.email,
+            customerName: `${formData.get('firstName')} ${formData.get('lastName')}`,
             date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
             items: cart,
             subtotal: subtotal,
@@ -130,12 +143,25 @@ const Checkout = () => {
                 provider: mobileForm.provider.toUpperCase(),
                 mobileNumber: mobileForm.mobileNumber
             },
+            shipping: shippingDetails,
             status: 'Pending',
             timestamp: new Date().getTime()
         };
 
         try {
             await axios.post('/api/orders', orderData);
+            
+            // Notify Admin
+            addNotification({
+                role: 'admin',
+                title: 'New Order Received',
+                message: `Order ${orderData.orderId} placed by ${orderData.customerName}.`,
+                fullMessage: `Order ID: ${orderData.orderId}\nTotal: ৳${orderData.totalAmount}\nPayment: ${orderData.paymentMethod}\n\nShipping Details:\nName: ${shippingDetails.firstName} ${shippingDetails.lastName}\nEmail: ${shippingDetails.email}\nPhone: ${shippingDetails.phone}\nAddress: ${shippingDetails.address}, ${shippingDetails.city} - ${shippingDetails.postcode}${shippingDetails.notes ? '\nNotes: ' + shippingDetails.notes : ''}`,
+                senderName: `${shippingDetails.firstName} ${shippingDetails.lastName}`,
+                senderEmail: shippingDetails.email,
+                type: 'new_order'
+            });
+
             setCart([]);
             navigate("/thank-you", { state: { order: orderData } });
         } catch (error) {
@@ -234,19 +260,19 @@ const Checkout = () => {
                                         </div>
                                         <div className="md:col-span-2">
                                             <label className="block text-sm font-medium text-gray-700 mb-2">Street Address</label>
-                                            <input required type="text" className="w-full border border-gray-300 rounded-lg py-2.5 px-4 text-gray-700 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent" placeholder="House No, Street Area" />
+                                            <input required type="text" name="address" className="w-full border border-gray-300 rounded-lg py-2.5 px-4 text-gray-700 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent" placeholder="House No, Street Area" />
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">Town / City</label>
-                                            <input required type="text" className="w-full border border-gray-300 rounded-lg py-2.5 px-4 text-gray-700 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent" placeholder="Dhaka" />
+                                            <input required type="text" name="city" className="w-full border border-gray-300 rounded-lg py-2.5 px-4 text-gray-700 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent" placeholder="Dhaka" />
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">Postcode / ZIP</label>
-                                            <input required type="text" className="w-full border border-gray-300 rounded-lg py-2.5 px-4 text-gray-700 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent" placeholder="1200" />
+                                            <input required type="text" name="postcode" className="w-full border border-gray-300 rounded-lg py-2.5 px-4 text-gray-700 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent" placeholder="1200" />
                                         </div>
                                         <div className="md:col-span-2">
                                             <label className="block text-sm font-medium text-gray-700 mb-2">Order Notes (Optional)</label>
-                                            <textarea className="w-full border border-gray-300 rounded-lg py-2.5 px-4 text-gray-700 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent h-24 resize-none" placeholder="Notes about your order, e.g. special notes for delivery."></textarea>
+                                            <textarea name="notes" className="w-full border border-gray-300 rounded-lg py-2.5 px-4 text-gray-700 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent h-24 resize-none" placeholder="Notes about your order, e.g. special notes for delivery."></textarea>
                                         </div>
                                     </div>
                                 </div>

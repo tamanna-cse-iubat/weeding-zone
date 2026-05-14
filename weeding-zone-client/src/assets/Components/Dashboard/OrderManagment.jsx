@@ -7,6 +7,7 @@ import {
 import Swal from 'sweetalert2';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { addNotification } from '../../../utils/notificationService';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 const STATUS_FLOW = ['Pending', 'Confirmed', 'Shipped', 'Delivered'];
@@ -250,6 +251,15 @@ const OrderManagment = () => {
 
         try {
             await axios.put(`/api/orders/${encodeURIComponent(orderId)}`, { status: newStatus });
+            const order = orders.find(o => o.orderId === orderId);
+            if (order) {
+                addNotification({
+                    userId: order.customerEmail,
+                    title: 'Order Status Updated',
+                    message: `Your order ${orderId} is now ${newStatus}.`,
+                    type: 'order_status'
+                });
+            }
         } catch (error) {
             console.error('Failed to update order status:', error);
             // Revert on failure
@@ -541,12 +551,27 @@ const OrderManagment = () => {
 
                         <div className="p-7 space-y-5 max-h-[70vh] overflow-y-auto">
                             {/* Customer */}
+                            {/* Customer */}
                             <div className="bg-[#FDFBF7] border border-[#F2ECE4] rounded-2xl p-4">
                                 <p className="text-xs font-semibold text-gray-400 uppercase mb-2">Customer Info</p>
                                 <p className="font-bold text-gray-800">{selectedOrder.customerName}</p>
                                 <p className="text-sm text-gray-500">{selectedOrder.customerEmail}</p>
                                 <p className="text-sm text-gray-500 mt-1">Date: {selectedOrder.date}</p>
                                 <p className="text-sm text-gray-500">Payment: <span className="capitalize font-medium">{selectedOrder.paymentMethod}</span></p>
+                                
+                                {selectedOrder.shipping && (
+                                    <div className="mt-4 pt-4 border-t border-[#F2ECE4]">
+                                        <p className="text-xs font-semibold text-gray-400 uppercase mb-2">Shipping Details</p>
+                                        <p className="text-sm text-gray-700 font-medium">{selectedOrder.shipping.firstName} {selectedOrder.shipping.lastName}</p>
+                                        <p className="text-sm text-gray-500">{selectedOrder.shipping.email}</p>
+                                        <p className="text-sm text-gray-500">{selectedOrder.shipping.phone}</p>
+                                        <p className="text-sm text-gray-500 mt-1">{selectedOrder.shipping.address}</p>
+                                        <p className="text-sm text-gray-500">{selectedOrder.shipping.city}, {selectedOrder.shipping.postcode}</p>
+                                        {selectedOrder.shipping.notes && (
+                                            <p className="text-xs text-gray-400 mt-2 italic border-l-2 border-[#4A0E1B]/30 pl-2">Note: {selectedOrder.shipping.notes}</p>
+                                        )}
+                                    </div>
+                                )}
                             </div>
 
                             {/* Status Timeline */}

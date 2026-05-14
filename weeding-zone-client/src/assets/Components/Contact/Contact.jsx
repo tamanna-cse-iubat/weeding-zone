@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import { ChevronRightIcon } from '@heroicons/react/24/outline';
 import { MapPinIcon, PhoneIcon, EnvelopeIcon, ClockIcon, PaperAirplaneIcon } from '@heroicons/react/24/solid';
 import Swal from 'sweetalert2';
-
+import { addNotification } from '../../../utils/notificationService';
 const Contact = () => {
     const [form, setForm] = useState({
         name: '',
@@ -25,6 +25,18 @@ const Contact = () => {
         // Simulate sending
         setTimeout(() => {
             setSending(false);
+            
+            // Notify Admin
+            addNotification({
+                role: 'admin',
+                title: 'New Contact Message',
+                message: `You received a new message from ${form.name} (${form.email}) regarding: ${form.subject}.`,
+                fullMessage: form.message,
+                senderName: form.name,
+                senderEmail: form.email,
+                type: 'contact'
+            });
+
             setForm({ name: '', email: '', phone: '', subject: '', message: '' });
             Swal.fire({
                 icon: 'success',

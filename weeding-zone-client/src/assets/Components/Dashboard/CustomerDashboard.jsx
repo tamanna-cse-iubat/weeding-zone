@@ -20,8 +20,11 @@ import {
     TrendingUp,
     CheckCircle,
     Clock,
+    X,
+    Check,
 } from 'lucide-react';
 import { Link } from 'react-router';
+import { getNotifications, markAsRead, markAllAsRead } from '../../../utils/notificationService';
 
 const CustomerDashboard = () => {
     const { user, logOut, manageUserProfile, getUserProfile, wishlist } = useContext(AuthContext);
@@ -37,6 +40,10 @@ const CustomerDashboard = () => {
     });
     const [userProfile, setUserProfile] = useState(null);
     const [updating, setUpdating] = useState(false);
+
+    // Notifications State
+    const [notifications, setNotifications] = useState([]);
+    const [showNotifications, setShowNotifications] = useState(false);
 
     // Initialize user profile data
     useEffect(() => {
@@ -69,6 +76,55 @@ const CustomerDashboard = () => {
             }
         }
     }, [user, getUserProfile]);
+
+    useEffect(() => {
+        if (user?.email) {
+            setNotifications(getNotifications(user.email));
+            const notifInterval = setInterval(() => {
+                setNotifications(getNotifications(user.email));
+            }, 5000);
+            return () => clearInterval(notifInterval);
+        }
+    }, [user]);
+
+    const handleMarkAsRead = (id) => {
+        markAsRead(id);
+        setNotifications(getNotifications(user.email));
+    };
+
+    const handleMarkAllAsRead = () => {
+        markAllAsRead(user.email);
+        setNotifications(getNotifications(user.email));
+    };
+
+    const handleNotificationClick = (notif, e) => {
+        if (e.target.closest('.mark-read-btn')) return;
+        if (!notif.read) handleMarkAsRead(notif.id);
+        
+        setShowNotifications(false);
+
+        if (notif.fullMessage) {
+            Swal.fire({
+                title: notif.title,
+                html: `<div style="text-align: left; font-size: 14px; margin-top: 10px; padding: 15px; background: #f9f9f9; border-radius: 8px;">
+                        <p style="margin-bottom: 5px;"><strong>From:</strong> ${notif.senderName || 'Unknown'} &lt;${notif.senderEmail || 'N/A'}&gt;</p>
+                        <hr style="margin: 10px 0;" />
+                        <p style="white-space: pre-wrap; color: #444; line-height: 1.5;">${notif.fullMessage}</p>
+                       </div>`,
+                confirmButtonColor: '#4A0E1B',
+                confirmButtonText: 'Close'
+            });
+        } else {
+            Swal.fire({
+                title: notif.title,
+                html: `<div style="text-align: left; font-size: 14px; margin-top: 10px; padding: 15px; background: #f9f9f9; border-radius: 8px;">
+                        <p style="white-space: pre-wrap; color: #444; line-height: 1.5;">${notif.message}</p>
+                       </div>`,
+                confirmButtonColor: '#4A0E1B',
+                confirmButtonText: 'Close'
+            });
+        }
+    };
 
     const loadOrders = async () => {
         if (!user?.email) {
@@ -204,8 +260,8 @@ const CustomerDashboard = () => {
                 <nav className="flex-1 px-4 pb-6 space-y-1">
                     {[
                         { icon: LayoutDashboard, label: 'Dashboard', active: true, to: '/customer-dashboard' },
-                        { icon: ShoppingBag, label: 'My Orders', to: '/customer-dashboard' },
-                        { icon: History, label: 'My Rentals', to: '/customer-dashboard' },
+                        { icon: ShoppingBag, label: 'My Orders', to: '/customer/orders' },
+                        { icon: History, label: 'My Rentals', to: '/customer/orders?filter=rentals' },
                         { icon: Heart, label: 'Wishlist', to: '/wishlist' },
                         // { icon: User, label: 'My Profile', to: '/customer-dashboard' },
                         // { icon: MapPin, label: 'Address Book', to: '/customer-dashboard' },
@@ -257,10 +313,55 @@ const CustomerDashboard = () => {
                                 className="bg-transparent border-none focus:ring-0 text-sm w-48"
                             />
                         </div>
-                        <button className="p-2.5 bg-gray-50 text-gray-500 rounded-full hover:bg-gray-100 transition relative">
-                            <Bell className="w-5 h-5" />
-                            <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-2 border-white"></span>
-                        </button>
+                        <div className="relative">
+                            <button onClick={() => setShowNotifications(!showNotifications)} className="p-2.5 bg-gray-50 text-gray-500 rounded-full hover:bg-gray-100 transition relative">
+                                <Bell className="w-5 h-5" />
+                                {notifications.filter(n => !n.read).length > 0 && (
+                                    <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white"></span>
+                                )}
+                            </button>
+                            {showNotifications && (
+                                <div className="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden">
+                                    <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+                                        <h3 className="font-bold text-gray-800 text-sm">Notifications</h3>
+                                        <button onClick={handleMarkAllAsRead} className="text-xs text-[#4A0E1B] hover:underline font-medium">Mark all as read</button>
+                                    </div>
+                                    <div className="max-h-80 overflow-y-auto">
+                                        {notifications.length === 0 ? (
+                                            <div className="p-6 text-center text-gray-400 text-sm">No notifications yet.</div>
+                                        ) : (
+                                            <div className="divide-y divide-gray-50">
+                                                {notifications.map(notif => (
+                                                    <div 
+                                                        key={notif.id} 
+                                                        onClick={(e) => handleNotificationClick(notif, e)}
+                                                        className={`p-4 transition hover:bg-gray-50 cursor-pointer ${!notif.read ? 'bg-rose-50/30' : ''}`}
+                                                    >
+                                                        <div className="flex items-start justify-between gap-3">
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className={`text-sm font-semibold ${!notif.read ? 'text-gray-800' : 'text-gray-600'}`}>{notif.title}</p>
+                                                                <p className="text-xs text-gray-700 mt-1 whitespace-pre-wrap">{notif.message}</p>
+                                                                {notif.fullMessage && (
+                                                                    <div className="mt-2 p-2 bg-white rounded border border-gray-100 text-xs text-gray-600 whitespace-pre-wrap">
+                                                                        {notif.fullMessage}
+                                                                    </div>
+                                                                )}
+                                                                <p className="text-[10px] text-gray-400 mt-2">{notif.date}</p>
+                                                            </div>
+                                                            {!notif.read && (
+                                                                <button onClick={(e) => { e.stopPropagation(); handleMarkAsRead(notif.id); }} className="mark-read-btn p-1.5 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg shrink-0" title="Mark as read">
+                                                                    <Check className="w-3.5 h-3.5" />
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </header>
 
@@ -310,9 +411,9 @@ const CustomerDashboard = () => {
                         <div className="lg:col-span-2 space-y-6">
                             <div className="flex items-center justify-between">
                                 <h3 className="text-xl font-bold text-gray-800">Recent Orders</h3>
-                                <button className="text-rose-600 text-sm font-semibold hover:underline flex items-center gap-1">
+                                <Link to="/customer/orders" className="text-rose-600 text-sm font-semibold hover:underline flex items-center gap-1">
                                     View All Orders <ChevronRight className="w-4 h-4" />
-                                </button>
+                                </Link>
                             </div>
 
                             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -346,9 +447,12 @@ const CustomerDashboard = () => {
                                                         {order.status}
                                                     </span>
                                                     <span className="font-bold text-gray-800">৳ {order.totalAmount.toLocaleString()}</span>
-                                                    <button className="px-4 py-2 border border-rose-200 text-rose-600 rounded-xl text-sm font-bold hover:bg-rose-50 transition">
+                                                    <Link 
+                                                        to={`/customer/order/${encodeURIComponent(order.orderId)}`}
+                                                        className="px-4 py-2 border border-rose-200 text-rose-600 rounded-xl text-sm font-bold hover:bg-rose-50 transition"
+                                                    >
                                                         View Details
-                                                    </button>
+                                                    </Link>
                                                 </div>
                                             </div>
                                         ))}

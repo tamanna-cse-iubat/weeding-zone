@@ -22,7 +22,9 @@ import {
     Eye,
     ArrowUp,
     X,
+    Check,
 } from 'lucide-react';
+import { getNotifications, markAsRead, markAllAsRead } from '../../../utils/notificationService';
 
 
 // Real data will be calculated in the component
@@ -65,6 +67,10 @@ const Dashboard = () => {
     const [loading, setLoading] = useState(true);
     const [editProfileOpen, setEditProfileOpen] = useState(false);
     const [profileData, setProfileData] = useState({ displayName: user?.displayName || '', photoURL: user?.photoURL || '' });
+    
+    // Notifications State
+    const [notifications, setNotifications] = useState([]);
+    const [showNotifications, setShowNotifications] = useState(false);
 
     useEffect(() => {
         const loadOrders = async () => {
@@ -80,7 +86,54 @@ const Dashboard = () => {
         };
         loadOrders();
         setProfileData({ displayName: user?.displayName || '', photoURL: user?.photoURL || '' });
+
+        if (user?.email) {
+            setNotifications(getNotifications(user.email));
+            const notifInterval = setInterval(() => {
+                setNotifications(getNotifications(user.email));
+            }, 5000);
+            return () => clearInterval(notifInterval);
+        }
     }, [user]);
+
+    const handleMarkAsRead = (id) => {
+        markAsRead(id);
+        setNotifications(getNotifications(user.email));
+    };
+
+    const handleMarkAllAsRead = () => {
+        markAllAsRead(user.email);
+        setNotifications(getNotifications(user.email));
+    };
+
+    const handleNotificationClick = (notif, e) => {
+        if (e.target.closest('.mark-read-btn')) return; // ignore if clicking the mark as read button
+        if (!notif.read) handleMarkAsRead(notif.id);
+        
+        setShowNotifications(false);
+
+        if (notif.fullMessage) {
+            Swal.fire({
+                title: notif.title,
+                html: `<div style="text-align: left; font-size: 14px; margin-top: 10px; padding: 15px; background: #f9f9f9; border-radius: 8px;">
+                        <p style="margin-bottom: 5px;"><strong>From:</strong> ${notif.senderName || 'Unknown'} &lt;${notif.senderEmail || 'N/A'}&gt;</p>
+                        <hr style="margin: 10px 0;" />
+                        <p style="white-space: pre-wrap; color: #444; line-height: 1.5;">${notif.fullMessage}</p>
+                       </div>`,
+                confirmButtonColor: '#4A0E1B',
+                confirmButtonText: 'Close'
+            });
+        } else {
+            Swal.fire({
+                title: notif.title,
+                html: `<div style="text-align: left; font-size: 14px; margin-top: 10px; padding: 15px; background: #f9f9f9; border-radius: 8px;">
+                        <p style="white-space: pre-wrap; color: #444; line-height: 1.5;">${notif.message}</p>
+                       </div>`,
+                confirmButtonColor: '#4A0E1B',
+                confirmButtonText: 'Close'
+            });
+        }
+    };
 
     const handleLogout = () => {
         logOut().then(() => navigate('/signin'));
@@ -275,10 +328,55 @@ const Dashboard = () => {
 
 
                     <div className="flex items-center gap-2 md:gap-3">
-                        <button className="hidden sm:block p-2 rounded-lg hover:bg-gray-100 transition relative">
-                            <Bell className="h-5 w-5 text-gray-600" />
-                            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
-                        </button>
+                        <div className="relative">
+                            <button onClick={() => setShowNotifications(!showNotifications)} className="hidden sm:block p-2 rounded-lg hover:bg-gray-100 transition relative">
+                                <Bell className="h-5 w-5 text-gray-600" />
+                                {notifications.filter(n => !n.read).length > 0 && (
+                                    <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border border-white"></span>
+                                )}
+                            </button>
+                            {showNotifications && (
+                                <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden">
+                                    <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+                                        <h3 className="font-bold text-gray-800 text-sm">Notifications</h3>
+                                        <button onClick={handleMarkAllAsRead} className="text-xs text-[#6A0D25] hover:underline font-medium">Mark all as read</button>
+                                    </div>
+                                    <div className="max-h-80 overflow-y-auto">
+                                        {notifications.length === 0 ? (
+                                            <div className="p-6 text-center text-gray-400 text-sm">No notifications yet.</div>
+                                        ) : (
+                                            <div className="divide-y divide-gray-50">
+                                                {notifications.map(notif => (
+                                                    <div 
+                                                        key={notif.id} 
+                                                        onClick={(e) => handleNotificationClick(notif, e)}
+                                                        className={`p-4 transition hover:bg-gray-50 cursor-pointer ${!notif.read ? 'bg-rose-50/30' : ''}`}
+                                                    >
+                                                        <div className="flex items-start justify-between gap-3">
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className={`text-sm font-semibold ${!notif.read ? 'text-gray-800' : 'text-gray-600'}`}>{notif.title}</p>
+                                                                <p className="text-xs text-gray-700 mt-1 whitespace-pre-wrap">{notif.message}</p>
+                                                                {notif.fullMessage && (
+                                                                    <div className="mt-2 p-2 bg-white rounded border border-gray-100 text-xs text-gray-600 whitespace-pre-wrap">
+                                                                        {notif.fullMessage}
+                                                                    </div>
+                                                                )}
+                                                                <p className="text-[10px] text-gray-400 mt-2">{notif.date}</p>
+                                                            </div>
+                                                            {!notif.read && (
+                                                                <button onClick={(e) => { e.stopPropagation(); handleMarkAsRead(notif.id); }} className="mark-read-btn p-1.5 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg shrink-0" title="Mark as read">
+                                                                    <Check className="w-3.5 h-3.5" />
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                         <button onClick={() => setEditProfileOpen(true)} className="p-2 rounded-lg hover:bg-gray-100 transition" title="Edit Profile">
                             <Settings className="h-5 w-5 text-gray-600" />
                         </button>
