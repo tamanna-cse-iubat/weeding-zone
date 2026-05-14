@@ -219,7 +219,7 @@ const Cart = () => {
                 icon: 'error',
                 title: 'Invalid Coupon',
                 text: 'This coupon code is not valid or has been deactivated.',
-                confirmButtonColor: '#4A0E0E'
+                confirmButtonColor: '#4A0E1B'
             });
             return;
         }

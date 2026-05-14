@@ -133,12 +133,12 @@ const InventoryManagement = () => {
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
                     <div>
-                        <h1 className="text-4xl font-serif font-bold text-accent mb-2">Inventory Management</h1>
+                        <h1 className="text-4xl font-serif font-bold text-[#4A0E1B] mb-2">Inventory Management</h1>
                         <p className="text-gray-500">Manage your product collection, stock, and pricing.</p>
                     </div>
                     <button 
                         onClick={openAddModal}
-                        className="flex items-center justify-center gap-2 bg-accent text-white px-6 py-3 rounded-xl font-bold hover:brightness-110 transition shadow-lg shadow-rose-200"
+                        className="flex items-center justify-center gap-2 bg-[#4A0E1B] text-white px-6 py-3 rounded-xl font-bold hover:brightness-110 transition shadow-lg shadow-rose-200"
                     >
                         <Plus className="size-5" />
                         Add New Product
@@ -152,13 +152,13 @@ const InventoryManagement = () => {
                         <input 
                             type="text" 
                             placeholder="Search by name or category..." 
-                            className="w-full pl-12 pr-4 py-3 bg-gray-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/20 border-none text-gray-700"
+                            className="w-full pl-12 pr-4 py-3 bg-gray-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4A0E1B]/20 border-none text-gray-700"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
                     <div className="flex gap-2">
-                        <span className="bg-rose-50 text-accent px-4 py-2 rounded-lg text-sm font-semibold border border-rose-100">
+                        <span className="bg-rose-50 text-[#4A0E1B] px-4 py-2 rounded-lg text-sm font-semibold border border-rose-100">
                             Total: {products.length} Products
                         </span>
                     </div>
@@ -238,7 +238,7 @@ const InventoryManagement = () => {
                 <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
                     <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
                         <div className="flex items-center justify-between px-8 py-6 border-b border-gray-100">
-                            <h2 className="text-2xl font-serif font-bold text-accent">
+                            <h2 className="text-2xl font-serif font-bold text-[#4A0E1B]">
                                 {editingProduct ? 'Edit Product' : 'Add New Product'}
                             </h2>
                             <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full transition">
@@ -255,7 +255,7 @@ const InventoryManagement = () => {
                                     </label>
                                     <input 
                                         required name="name" type="text" value={formData.name} onChange={handleInputChange}
-                                        className="w-full px-4 py-3 bg-gray-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/20 border-none"
+                                        className="w-full px-4 py-3 bg-gray-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4A0E1B]/20 border-none"
                                     />
                                 </div>
 
@@ -266,7 +266,7 @@ const InventoryManagement = () => {
                                     </label>
                                     <select 
                                         required name="category" value={formData.category} onChange={handleInputChange}
-                                        className="w-full px-4 py-3 bg-gray-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/20 border-none"
+                                        className="w-full px-4 py-3 bg-gray-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4A0E1B]/20 border-none"
                                     >
                                         <option value="">Select Category</option>
                                         <option value="Bride">Bride</option>
@@ -281,7 +281,7 @@ const InventoryManagement = () => {
                                     </label>
                                     <input 
                                         required name="type" type="text" value={formData.type} onChange={handleInputChange} placeholder="e.g., Lehenga, Sherwani"
-                                        className="w-full px-4 py-3 bg-gray-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/20 border-none"
+                                        className="w-full px-4 py-3 bg-gray-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4A0E1B]/20 border-none"
                                     />
                                 </div>
 
@@ -292,7 +292,7 @@ const InventoryManagement = () => {
                                     </label>
                                     <input 
                                         required name="rent" type="number" value={formData.rent} onChange={handleInputChange}
-                                        className="w-full px-4 py-3 bg-gray-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/20 border-none"
+                                        className="w-full px-4 py-3 bg-gray-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4A0E1B]/20 border-none"
                                     />
                                 </div>
 
@@ -303,7 +303,7 @@ const InventoryManagement = () => {
                                     </label>
                                     <input 
                                         required name="rent_for_days" type="number" value={formData.rent_for_days} onChange={handleInputChange}
-                                        className="w-full px-4 py-3 bg-gray-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/20 border-none"
+                                        className="w-full px-4 py-3 bg-gray-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4A0E1B]/20 border-none"
                                     />
                                 </div>
 
@@ -312,7 +312,7 @@ const InventoryManagement = () => {
                                     <label className="text-sm font-semibold text-gray-700 mb-2 block">Photo URL</label>
                                     <input 
                                         required name="photoURL" type="url" value={formData.photoURL} onChange={handleInputChange}
-                                        className="w-full px-4 py-3 bg-gray-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/20 border-none"
+                                        className="w-full px-4 py-3 bg-gray-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4A0E1B]/20 border-none"
                                     />
                                 </div>
 
@@ -323,7 +323,7 @@ const InventoryManagement = () => {
                                     </label>
                                     <input 
                                         required name="stock" type="number" value={formData.stock} onChange={handleInputChange}
-                                        className="w-full px-4 py-3 bg-gray-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/20 border-none"
+                                        className="w-full px-4 py-3 bg-gray-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4A0E1B]/20 border-none"
                                     />
                                 </div>
 
@@ -334,7 +334,7 @@ const InventoryManagement = () => {
                                     </label>
                                     <input 
                                         name="size" type="text" value={formData.size.join(', ')} onChange={handleSizeChange} placeholder="e.g., S, M, L, XL"
-                                        className="w-full px-4 py-3 bg-gray-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/20 border-none"
+                                        className="w-full px-4 py-3 bg-gray-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4A0E1B]/20 border-none"
                                     />
                                     <p className="text-[10px] text-gray-400 mt-1">Separate sizes with commas</p>
                                 </div>
@@ -349,7 +349,7 @@ const InventoryManagement = () => {
                                 </button>
                                 <button 
                                     type="submit"
-                                    className="flex-1 px-6 py-4 bg-accent text-white rounded-2xl font-bold hover:brightness-110 transition shadow-lg shadow-rose-100"
+                                    className="flex-1 px-6 py-4 bg-[#4A0E1B] text-white rounded-2xl font-bold hover:brightness-110 transition shadow-lg shadow-rose-100"
                                 >
                                     {editingProduct ? 'Update Product' : 'Save Product'}
                                 </button>

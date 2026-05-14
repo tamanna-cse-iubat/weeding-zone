@@ -94,7 +94,7 @@ const OrderManagment = () => {
 
         const doc = new jsPDF();
         const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-        const brandColor = [74, 14, 27]; // #4A0E1B
+        const brandColor = [74, 14, 27]; // accent
         const goldColor  = [245, 197, 24]; // #F5C518
 
         // ── Background header band

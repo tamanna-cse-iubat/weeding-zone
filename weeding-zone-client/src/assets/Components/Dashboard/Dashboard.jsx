@@ -137,7 +137,7 @@ const Dashboard = () => {
     
     if (loading || !user) {
         return <div className="flex justify-center items-center h-screen bg-[#F4F6F9]">
-            <span className="loading loading-spinner loading-lg text-accent"></span>
+            <span className="loading loading-spinner loading-lg text-[#4A0E1B]"></span>
         </div>;
     }
 
@@ -303,7 +303,7 @@ const Dashboard = () => {
                             <p className="text-sm text-gray-500 mt-1">Welcome back, {user?.email === 'tamanna.cse.iubat@gmail.com' ? user?.displayName || 'Admin' : user?.displayName || 'Customer'}!</p>
                         </div>
                         <div className="flex gap-2 items-center text-sm bg-white border border-gray-200 rounded-xl px-3 md:px-4 py-2 text-gray-600 w-fit">
-                            <span>May 2026</span>
+                            <span>Date: {new Date().toLocaleDateString()}</span>
                         </div>
                     </div>
 

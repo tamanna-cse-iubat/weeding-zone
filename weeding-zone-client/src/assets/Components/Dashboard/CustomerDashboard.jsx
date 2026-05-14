@@ -128,7 +128,7 @@ const CustomerDashboard = () => {
                 title: 'Update Failed',
                 text: 'There was an error updating your profile. Please try again.',
                 icon: 'error',
-                confirmButtonColor: '#4A0E0E'
+                confirmButtonColor: '#4A0E1B'
             });
         } finally {
             setUpdating(false);
@@ -179,7 +179,7 @@ const CustomerDashboard = () => {
             {/* Sidebar */}
             <aside className="w-full md:w-72 bg-white border-r border-gray-100 flex flex-col shrink-0">
                 <div className="p-6">
-                    <div className="bg-[#4A0E0E] rounded-2xl p-6 text-white relative overflow-hidden group">
+                    <div className="bg-[#4A0E1B] rounded-2xl p-6 text-white relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -mr-8 -mt-8 blur-2xl"></div>
                         <div className="relative flex flex-col items-center text-center">
                             <div className="w-20 h-20 rounded-full bg-gray-200 border-2 border-white/20 mb-3 overflow-hidden">
@@ -217,11 +217,11 @@ const CustomerDashboard = () => {
                             key={idx}
                             to={item.to}
                             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${item.active
-                                    ? 'bg-rose-50 text-[#4A0E0E] font-semibold'
+                                    ? 'bg-rose-50 text-[#4A0E1B] font-semibold'
                                     : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'
                                 }`}
                         >
-                            <item.icon className={`w-5 h-5 ${item.active ? 'text-[#4A0E0E]' : 'text-gray-400'}`} />
+                            <item.icon className={`w-5 h-5 ${item.active ? 'text-[#4A0E1B]' : 'text-gray-400'}`} />
                             <span className="text-sm">{item.label}</span>
                         </Link>
                     ))}
@@ -266,7 +266,7 @@ const CustomerDashboard = () => {
 
                 <div className="p-6 space-y-8 max-w-7xl mx-auto">
                     {/* Special Offer Banner */}
-                    <div className="bg-[#4A0E0E] rounded-3xl p-8 text-white flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
+                    <div className="bg-[#4A0E1B] rounded-3xl p-8 text-white flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
                         <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[radial-gradient(circle_at_50%_50%,#fff,transparent)]"></div>
                         <div className="relative z-1 space-y-4 max-w-md">
                             <h2 className="text-[#D4AF37] font-serif text-3xl font-bold italic">Special Offer!</h2>
@@ -277,7 +277,7 @@ const CustomerDashboard = () => {
                             </div>
                         </div>
                         <div className="relative z-1">
-                            <button className="bg-[#D4AF37] hover:bg-[#C19B2E] text-[#4A0E0E] p-4 rounded-2xl transition-transform hover:scale-110">
+                            <button className="bg-[#D4AF37] hover:bg-[#C19B2E] text-[#4A0E1B] p-4 rounded-2xl transition-transform hover:scale-110">
                                 <ChevronRight className="w-6 h-6" />
                             </button>
                         </div>
@@ -448,11 +448,11 @@ const CustomerDashboard = () => {
 
                                 {/* Decorative floral pattern placeholder */}
                                 <div className="absolute bottom-0 right-0 w-24 h-24 opacity-5 pointer-events-none">
-                                    <div className="w-full h-full border-4 border-[#4A0E0E] rounded-full -mr-12 -mb-12"></div>
+                                    <div className="w-full h-full border-4 border-[#4A0E1B] rounded-full -mr-12 -mb-12"></div>
                                 </div>
                             </div>
 
-                            <div className="bg-[#4A0E0E] rounded-2xl p-6 text-white text-center space-y-4">
+                            <div className="bg-[#4A0E1B] rounded-2xl p-6 text-white text-center space-y-4">
                                 <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center mx-auto">
                                     <LifeBuoy className="w-6 h-6 text-[#D4AF37]" />
                                 </div>
@@ -461,7 +461,7 @@ const CustomerDashboard = () => {
                                     <p className="text-white/60 text-xs mt-1">Our support team is here to help</p>
                                 </div>
                                 <Link to={'https://wa.me/+8801816697212'}>
-                                    <button className="w-full bg-[#D4AF37] text-[#4A0E0E] py-3 rounded-xl font-bold text-sm hover:bg-[#C19B2E] transition flex items-center justify-center gap-2">
+                                    <button className="w-full bg-[#D4AF37] text-[#4A0E1B] py-3 rounded-xl font-bold text-sm hover:bg-[#C19B2E] transition flex items-center justify-center gap-2">
                                         Contact Support  <ChevronRight className="w-4 h-4" />
                                     </button>
                                 </Link>

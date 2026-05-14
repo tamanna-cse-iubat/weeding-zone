@@ -32,7 +32,7 @@ const generateInvoicePDF = (order) => {
     doc.setFont(undefined, 'bold');
     doc.text('INVOICE', pageWidth - 40, 15);
 
-    doc.setTextColor(...textDark);
+    doc.setTextColor(255, 255, 255);
     doc.setFontSize(10);
     doc.setFont(undefined, 'normal');
     doc.text(`Invoice #: ${order.orderId}`, pageWidth - 40, 22);

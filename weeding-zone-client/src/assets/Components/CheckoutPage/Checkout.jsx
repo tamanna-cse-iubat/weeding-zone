@@ -74,7 +74,7 @@ const Checkout = () => {
                     icon: 'error',
                     title: 'Incomplete Payment',
                     text: 'Please fill in all card details',
-                    confirmButtonColor: '#4A0E0E'
+                    confirmButtonColor: '#4A0E1B'
                 });
                 return;
             }
@@ -84,7 +84,7 @@ const Checkout = () => {
                     icon: 'error',
                     title: 'Invalid Card',
                     text: 'Card number must be 16 digits',
-                    confirmButtonColor: '#4A0E0E'
+                    confirmButtonColor: '#4A0E1B'
                 });
                 return;
             }
@@ -94,7 +94,7 @@ const Checkout = () => {
                     icon: 'error',
                     title: 'Incomplete Payment',
                     text: 'Please fill in all mobile banking details',
-                    confirmButtonColor: '#4A0E0E'
+                    confirmButtonColor: '#4A0E1B'
                 });
                 return;
             }
@@ -103,7 +103,7 @@ const Checkout = () => {
                     icon: 'error',
                     title: 'Invalid Number',
                     text: 'Mobile number must be 11 digits',
-                    confirmButtonColor: '#4A0E0E'
+                    confirmButtonColor: '#4A0E1B'
                 });
                 return;
             }
@@ -144,7 +144,7 @@ const Checkout = () => {
                 icon: 'error',
                 title: 'Order Failed',
                 text: 'Could not submit your order. Please try again.',
-                confirmButtonColor: '#4A0E0E'
+                confirmButtonColor: '#4A0E1B'
             });
         }
     };
@@ -253,7 +253,7 @@ const Checkout = () => {
 
                                 {/* Payment Method */}
                                 <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
-                                    <h2 className="text-2xl font-serif font-bold text-[#4A0E1B] mb-6">Payment Method</h2>
+                                    <h2 className="text-2xl font-serif font-bold text-[accent] mb-6">Payment Method</h2>
 
                                     <div className="space-y-4">
                                         <label className={`flex items-center gap-4 p-4 border rounded-xl cursor-pointer transition ${paymentMethod === 'card' ? 'border-accent bg-[#FDFBF7]' : 'border-gray-200 hover:border-gray-300'}`}>

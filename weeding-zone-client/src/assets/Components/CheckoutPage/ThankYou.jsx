@@ -44,7 +44,7 @@ const ThankYou = () => {
                 {/* Success Card */}
                 <div className="bg-white rounded-3xl shadow-xl shadow-rose-100/50 overflow-hidden border border-rose-50">
                     {/* Top Decorative Banner */}
-                    <div className="bg-[#4A0E0E] h-2 py-0"></div>
+                    <div className="bg-[#4A0E1B] h-2 py-0"></div>
 
                     <div className="p-8 md:p-12 text-center">
                         {/* Success Icon */}
@@ -53,7 +53,7 @@ const ThankYou = () => {
                             <div className="absolute inset-0 bg-green-500 rounded-full animate-ping opacity-20"></div>
                         </div>
 
-                        <h1 className="text-3xl md:text-4xl font-serif font-bold text-[#4A0E0E] mb-3">
+                        <h1 className="text-3xl md:text-4xl font-serif font-bold text-[#4A0E1B] mb-3">
                             Thank You for Your Order!
                         </h1>
                         <p className="text-gray-500 text-lg mb-8">
@@ -64,12 +64,12 @@ const ThankYou = () => {
                         <div className="bg-gray-50 rounded-2xl p-6 flex flex-col md:flex-row justify-between items-center gap-6 mb-10 border border-gray-100">
                             <div className="text-center md:text-left">
                                 <p className="text-gray-400 text-xs uppercase tracking-widest font-bold mb-1">Order ID</p>
-                                <p className="text-[#4A0E0E] font-bold text-lg">{order.orderId}</p>
+                                <p className="text-[#4A0E1B] font-bold text-lg">{order.orderId}</p>
                             </div>
                             <div className="w-px h-10 bg-gray-200 hidden md:block"></div>
                             <div className="text-center md:text-left">
                                 <p className="text-gray-400 text-xs uppercase tracking-widest font-bold mb-1">Date</p>
-                                <p className="text-[#4A0E0E] font-bold text-lg">{order.date}</p>
+                                <p className="text-[#4A0E1B] font-bold text-lg">{order.date}</p>
                             </div>
                             <div className="w-px h-10 bg-gray-200 hidden md:block"></div>
                             <div className="text-center md:text-left">
@@ -115,7 +115,7 @@ const ThankYou = () => {
                                             <p className="text-xs text-gray-400">Size: {item.size[0]} | Duration: {item.rent_for_days || 3} Days</p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-sm font-bold text-[#4A0E0E]">৳ {item.rent.toLocaleString()}</p>
+                                            <p className="text-sm font-bold text-[#4A0E1B]">৳ {item.rent.toLocaleString()}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -126,7 +126,7 @@ const ThankYou = () => {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <button
                                 onClick={() => navigate('/customer-dashboard')}
-                                className="flex items-center justify-center gap-2 bg-[#4A0E0E] text-white py-4 rounded-2xl font-bold hover:bg-[#5E0B15] transition shadow-lg shadow-rose-900/10"
+                                className="flex items-center justify-center gap-2 bg-[#4A0E1B] text-white py-4 rounded-2xl font-bold hover:bg-[#5E0B15] transition shadow-lg shadow-rose-900/10"
                             >
                                 <LayoutDashboard className="w-5 h-5" />
                                 View Dashboard
