@@ -16,23 +16,110 @@ const auth = getAuth(app);
 
 
 const AuthProvider = ({ children }) => {
-    const [cart, setCart] = useState([]);
+    const [cart, setCart] = useState(() => {
+        try {
+            const saved = localStorage.getItem('cart_guest');
+            return saved ? JSON.parse(saved) : [];
+        } catch (e) {
+            return [];
+        }
+    });
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [wishlist, setWishlist] = useState([]);
-
-    useEffect(() => {
-        const key = user ? `wishlist_${user.email}` : 'wishlist_guest';
-        const savedWishlist = localStorage.getItem(key);
-        setWishlist(savedWishlist ? JSON.parse(savedWishlist) : []);
-    }, [user]);
-
-    useEffect(() => {
-        if (user || !loading) {
-            const key = user ? `wishlist_${user.email}` : 'wishlist_guest';
-            localStorage.setItem(key, JSON.stringify(wishlist));
+    const [wishlist, setWishlist] = useState(() => {
+        try {
+            const saved = localStorage.getItem('wishlist_guest');
+            return saved ? JSON.parse(saved) : [];
+        } catch (e) {
+            return [];
         }
-    }, [wishlist, user, loading]);
+    });
+    const [prevUserEmail, setPrevUserEmail] = useState(undefined);
+
+    useEffect(() => {
+        if (loading) return;
+
+        const currentEmail = user ? user.email : null;
+        if (currentEmail !== prevUserEmail) {
+            try {
+                if (user) {
+                    // Merge guest cart into user cart
+                    const guestCartStr = localStorage.getItem('cart_guest');
+                    const guestCart = guestCartStr ? JSON.parse(guestCartStr) : [];
+
+                    const userCartStr = localStorage.getItem(`cart_${user.email}`);
+                    const userCart = userCartStr ? JSON.parse(userCartStr) : [];
+
+                    let mergedCart = [...userCart];
+                    if (guestCart.length > 0) {
+                        guestCart.forEach(gItem => {
+                            if (!mergedCart.some(uItem => uItem.id === gItem.id)) {
+                                mergedCart.push(gItem);
+                            }
+                        });
+                        localStorage.setItem(`cart_${user.email}`, JSON.stringify(mergedCart));
+                        localStorage.removeItem('cart_guest');
+                    }
+                    setCart(mergedCart);
+
+                    // Merge guest wishlist into user wishlist
+                    const guestWishlistStr = localStorage.getItem('wishlist_guest');
+                    const guestWishlist = guestWishlistStr ? JSON.parse(guestWishlistStr) : [];
+
+                    const userWishlistStr = localStorage.getItem(`wishlist_${user.email}`);
+                    const userWishlist = userWishlistStr ? JSON.parse(userWishlistStr) : [];
+
+                    let mergedWishlist = [...userWishlist];
+                    if (guestWishlist.length > 0) {
+                        guestWishlist.forEach(gItem => {
+                            if (!mergedWishlist.some(uItem => uItem.id === gItem.id)) {
+                                mergedWishlist.push(gItem);
+                            }
+                        });
+                        localStorage.setItem(`wishlist_${user.email}`, JSON.stringify(mergedWishlist));
+                        localStorage.removeItem('wishlist_guest');
+                    }
+                    setWishlist(mergedWishlist);
+                } else {
+                    // Logged out: load guest cart and wishlist
+                    const guestCartStr = localStorage.getItem('cart_guest');
+                    setCart(guestCartStr ? JSON.parse(guestCartStr) : []);
+
+                    const guestWishlistStr = localStorage.getItem('wishlist_guest');
+                    setWishlist(guestWishlistStr ? JSON.parse(guestWishlistStr) : []);
+                }
+            } catch (e) {
+                console.error("Error synchronizing localStorage with auth state:", e);
+            }
+            setPrevUserEmail(currentEmail);
+        }
+    }, [user, loading, prevUserEmail]);
+
+    useEffect(() => {
+        if (loading) return;
+        const currentEmail = user ? user.email : null;
+        if (currentEmail === prevUserEmail) {
+            try {
+                const key = user ? `cart_${user.email}` : 'cart_guest';
+                localStorage.setItem(key, JSON.stringify(cart));
+            } catch (e) {
+                console.error("Error saving cart to localStorage:", e);
+            }
+        }
+    }, [cart, user, loading, prevUserEmail]);
+
+    useEffect(() => {
+        if (loading) return;
+        const currentEmail = user ? user.email : null;
+        if (currentEmail === prevUserEmail) {
+            try {
+                const key = user ? `wishlist_${user.email}` : 'wishlist_guest';
+                localStorage.setItem(key, JSON.stringify(wishlist));
+            } catch (e) {
+                console.error("Error saving wishlist to localStorage:", e);
+            }
+        }
+    }, [wishlist, user, loading, prevUserEmail]);
 
     const createUser = (email, password) => {
         setLoading(true);

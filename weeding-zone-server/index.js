@@ -309,12 +309,12 @@ async function start() {
     app.get('/', (req, res) => {
       res.send('Weeding Zone Server is running');
     });
-
+    //Get All Products
     app.get('/api/products', async (req, res) => {
       const items = await products.find({}).toArray();
       res.send(items);
     });
-
+      //Get Single Product by ID     
     app.get('/api/products/:id', async (req, res) => {
       const query = parseProductQuery(req.params.id);
       const product = await products.findOne(query);
@@ -322,6 +322,7 @@ async function start() {
       res.send(product);
     });
 
+    //Create new Products
     app.post('/api/products', async (req, res) => {
       const product = {
         ...req.body,
@@ -330,8 +331,8 @@ async function start() {
       };
       const result = await products.insertOne(product);
       res.status(201).send({ ...product, _id: result.insertedId });
-    });
-
+    }); 
+    //Update Product by ID
     app.put('/api/products/:id', async (req, res) => {
       try {
         const query = parseProductQuery(req.params.id);
@@ -346,7 +347,7 @@ async function start() {
         res.status(500).send({ error: 'Failed to update product' });
       }
     });
-
+  //Delete Product by ID
     app.delete('/api/products/:id', async (req, res) => {
       const query = parseProductQuery(req.params.id);
       const result = await products.deleteOne(query);
@@ -354,6 +355,7 @@ async function start() {
       res.send({ success: true });
     });
 
+    //Get All Orders
     app.get('/api/orders', async (req, res) => {
       const filter = {};
       if (req.query.email) {

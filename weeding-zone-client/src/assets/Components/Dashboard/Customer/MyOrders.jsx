@@ -133,19 +133,19 @@ const MyOrders = () => {
                                                 </div>
                                                 <div className="flex-1">
                                                     <h4 className="font-bold text-gray-800">{item.name}</h4>
-                                                    <p className="text-xs text-gray-500">Size: {item.size || 'N/A'} | Price: ৳ {(item.price || 0).toLocaleString()}</p>
+                                                    <p className="text-xs text-gray-500">Size: {item.size || 'N/A'} | Price: ৳ {(item.rent || 0).toLocaleString()}</p>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
 
                                     <div className="mt-6 flex justify-end gap-3">
-                                        <Link 
+                                        {/* <Link 
                                             to={`/customer/order/${encodeURIComponent(order.orderId)}`}
                                             className="px-6 py-2.5 bg-white border border-rose-100 text-[#4A0E1B] rounded-xl text-sm font-bold hover:bg-rose-50 transition shadow-sm"
                                         >
                                             View Details
-                                        </Link>
+                                        </Link> */}
                                         <Link 
                                             to="/contact"
                                             className="px-6 py-2.5 bg-[#4A0E1B] text-white rounded-xl text-sm font-bold hover:bg-[#6A1A2A] transition shadow-md shadow-rose-900/10"

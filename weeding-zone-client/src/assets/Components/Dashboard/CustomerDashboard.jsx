@@ -447,12 +447,12 @@ const CustomerDashboard = () => {
                                                         {order.status}
                                                     </span>
                                                     <span className="font-bold text-gray-800">৳ {order.totalAmount.toLocaleString()}</span>
-                                                    <Link 
+                                                    {/* <Link 
                                                         to={`/customer/order/${encodeURIComponent(order.orderId)}`}
                                                         className="px-4 py-2 border border-rose-200 text-rose-600 rounded-xl text-sm font-bold hover:bg-rose-50 transition"
                                                     >
                                                         View Details
-                                                    </Link>
+                                                    </Link> */}
                                                 </div>
                                             </div>
                                         ))}

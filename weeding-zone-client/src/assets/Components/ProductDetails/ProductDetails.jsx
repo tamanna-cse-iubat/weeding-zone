@@ -30,7 +30,7 @@ const ProductDetails = () => {
     const [activeImage, setActiveImage] = useState(photoURL);
 
     // Mocking thumbnails with the same image since data only has one
-    const thumbnails = [photoURL, photoURL, photoURL, photoURL];
+    const thumbnails = [photoURL];
 
     const { cart, setCart, wishlist, setWishlist } = useContext(AuthContext);
     const navigate = useNavigate();
