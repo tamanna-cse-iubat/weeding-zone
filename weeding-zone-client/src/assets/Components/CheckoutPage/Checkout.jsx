@@ -27,6 +27,38 @@ const Checkout = () => {
     const [paymentMethod, setPaymentMethod] = useState('card');
     const appliedCoupon = location.state?.appliedCoupon;
 
+    const validateCoupon = (coupon, subtotal, userEmail) => {
+        if (!coupon) return null;
+        if (!coupon.active) return 'This coupon is inactive.';
+        if (coupon.expiresAt && new Date(coupon.expiresAt) < new Date()) return 'This coupon has expired.';
+        if (coupon.minAmount && subtotal < coupon.minAmount) return `Requires a minimum order of ৳${coupon.minAmount}.`;
+        if (!userEmail) return 'Please sign in to use a coupon.';
+        const uses = coupon.usedBy?.filter(email => email === userEmail).length || 0;
+        if (coupon.maxUsesPerUser && uses >= coupon.maxUsesPerUser) {
+            return `You have already used this coupon ${coupon.maxUsesPerUser} time${coupon.maxUsesPerUser > 1 ? 's' : ''}.`;
+        }
+        return null;
+    };
+
+    const trackCouponUsage = (coupon, userEmail) => {
+        if (!coupon || !userEmail) return;
+        try {
+            const storedCoupons = JSON.parse(localStorage.getItem('wz_coupons') || '[]');
+            const updatedCoupons = storedCoupons.map(c => {
+                if (c.code === coupon.code) {
+                    return {
+                        ...c,
+                        usedBy: [...(c.usedBy || []), userEmail]
+                    };
+                }
+                return c;
+            });
+            localStorage.setItem('wz_coupons', JSON.stringify(updatedCoupons));
+        } catch (e) {
+            console.error('Failed to update coupon usage:', e);
+        }
+    };
+
     // Card payment state
     const [cardForm, setCardForm] = useState({
         cardNumber: '',
@@ -110,6 +142,17 @@ const Checkout = () => {
             }
         }
 
+        const couponValidationError = validateCoupon(appliedCoupon, subtotal, user?.email);
+        if (couponValidationError) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Coupon Validation Failed',
+                text: couponValidationError,
+                confirmButtonColor: '#4A0E1B'
+            });
+            return;
+        }
+
         const formData = new FormData(e.target);
         const shippingDetails = {
             firstName: formData.get('firstName'),
@@ -150,7 +193,7 @@ const Checkout = () => {
 
         try {
             await axios.post('/api/orders', orderData);
-            
+
             // Notify Admin
             addNotification({
                 role: 'admin',
@@ -161,6 +204,10 @@ const Checkout = () => {
                 senderEmail: shippingDetails.email,
                 type: 'new_order'
             });
+
+            if (appliedCoupon && user?.email) {
+                trackCouponUsage(appliedCoupon, user.email);
+            }
 
             setCart([]);
             navigate("/thank-you", { state: { order: orderData } });
@@ -358,7 +405,7 @@ const Checkout = () => {
                                                             let val = e.target.value.replace(/\s/g, '');
                                                             if (val.length <= 16) {
                                                                 val = val.replace(/(\d{4})/g, '$1 ').trim();
-                                                                setCardForm({...cardForm, cardNumber: val});
+                                                                setCardForm({ ...cardForm, cardNumber: val });
                                                             }
                                                         }}
                                                         className="w-full border border-gray-300 rounded-lg py-2.5 px-4 text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-mono"
@@ -371,9 +418,9 @@ const Checkout = () => {
                                                     <label className="block text-sm font-medium text-gray-700 mb-2">Card Holder Name</label>
                                                     <input
                                                         type="text"
-                                                        placeholder="John Doe"
+                                                        placeholder=" "
                                                         value={cardForm.cardHolder}
-                                                        onChange={(e) => setCardForm({...cardForm, cardHolder: e.target.value.toUpperCase()})}
+                                                        onChange={(e) => setCardForm({ ...cardForm, cardHolder: e.target.value.toUpperCase() })}
                                                         className="w-full border border-gray-300 rounded-lg py-2.5 px-4 text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                                                     />
                                                 </div>
@@ -383,12 +430,12 @@ const Checkout = () => {
                                                         <label className="block text-sm font-medium text-gray-700 mb-2">Month</label>
                                                         <select
                                                             value={cardForm.expiryMonth}
-                                                            onChange={(e) => setCardForm({...cardForm, expiryMonth: e.target.value})}
+                                                            onChange={(e) => setCardForm({ ...cardForm, expiryMonth: e.target.value })}
                                                             className="w-full border border-gray-300 rounded-lg py-2.5 px-4 text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                                                         >
                                                             <option value="">MM</option>
-                                                            {Array.from({length: 12}, (_, i) => (
-                                                                <option key={i+1} value={String(i+1).padStart(2, '0')}>{String(i+1).padStart(2, '0')}</option>
+                                                            {Array.from({ length: 12 }, (_, i) => (
+                                                                <option key={i + 1} value={String(i + 1).padStart(2, '0')}>{String(i + 1).padStart(2, '0')}</option>
                                                             ))}
                                                         </select>
                                                     </div>
@@ -396,11 +443,11 @@ const Checkout = () => {
                                                         <label className="block text-sm font-medium text-gray-700 mb-2">Year</label>
                                                         <select
                                                             value={cardForm.expiryYear}
-                                                            onChange={(e) => setCardForm({...cardForm, expiryYear: e.target.value})}
+                                                            onChange={(e) => setCardForm({ ...cardForm, expiryYear: e.target.value })}
                                                             className="w-full border border-gray-300 rounded-lg py-2.5 px-4 text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                                                         >
                                                             <option value="">YY</option>
-                                                            {Array.from({length: 10}, (_, i) => {
+                                                            {Array.from({ length: 10 }, (_, i) => {
                                                                 const year = new Date().getFullYear() + i;
                                                                 return <option key={year} value={String(year).slice(-2)}>{String(year).slice(-2)}</option>
                                                             })}
@@ -414,7 +461,7 @@ const Checkout = () => {
                                                             value={cardForm.cvv}
                                                             onChange={(e) => {
                                                                 if (/^\d{0,4}$/.test(e.target.value)) {
-                                                                    setCardForm({...cardForm, cvv: e.target.value});
+                                                                    setCardForm({ ...cardForm, cvv: e.target.value });
                                                                 }
                                                             }}
                                                             className="w-full border border-gray-300 rounded-lg py-2.5 px-4 text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-mono"
@@ -435,7 +482,7 @@ const Checkout = () => {
                                                     <label className="block text-sm font-medium text-gray-700 mb-2">Select Provider</label>
                                                     <select
                                                         value={mobileForm.provider}
-                                                        onChange={(e) => setMobileForm({...mobileForm, provider: e.target.value})}
+                                                        onChange={(e) => setMobileForm({ ...mobileForm, provider: e.target.value })}
                                                         className="w-full border border-gray-300 rounded-lg py-2.5 px-4 text-gray-700 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500"
                                                     >
                                                         <option value="bkash">bKash</option>
@@ -452,7 +499,7 @@ const Checkout = () => {
                                                         value={mobileForm.mobileNumber}
                                                         onChange={(e) => {
                                                             if (/^\d{0,11}$/.test(e.target.value)) {
-                                                                setMobileForm({...mobileForm, mobileNumber: e.target.value});
+                                                                setMobileForm({ ...mobileForm, mobileNumber: e.target.value });
                                                             }
                                                         }}
                                                         className="w-full border border-gray-300 rounded-lg py-2.5 px-4 text-gray-700 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500"
@@ -467,7 +514,7 @@ const Checkout = () => {
                                                         type="password"
                                                         placeholder="Enter your transaction PIN"
                                                         value={mobileForm.pin}
-                                                        onChange={(e) => setMobileForm({...mobileForm, pin: e.target.value})}
+                                                        onChange={(e) => setMobileForm({ ...mobileForm, pin: e.target.value })}
                                                         className="w-full border border-gray-300 rounded-lg py-2.5 px-4 text-gray-700 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500"
                                                     />
                                                     <p className="text-xs text-gray-500 mt-1">Enter your {mobileForm.provider.toUpperCase()} PIN</p>

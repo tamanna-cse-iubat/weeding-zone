@@ -27,13 +27,20 @@ const CartItem = ({ item, handleRemove, onDurationSelect, onSizeChange }) => {
     const [endDate, setEndDate] = useState("");
     const [isSelected, setIsSelected] = useState(false);
 
+    const today = new Date();
+    today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+    const minDate = today.toISOString().split("T")[0];
+
     // exact code from product details page
     const handleDateChange = (date) => {
         setStartDate(date);
 
+
+
         if (date) {
             const start = new Date(date);
             const end = new Date(start);
+
             end.setDate(start.getDate() + (item.rent_for_days || 3));
 
             // Format to DD MMM YYYY for display
@@ -130,8 +137,8 @@ const CartItem = ({ item, handleRemove, onDurationSelect, onSizeChange }) => {
                         <button
                             onClick={toggleSelection}
                             className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 ${isSelected
-                                    ? "bg-accent text-white shadow-md scale-105"
-                                    : "bg-white border border-accent text-accent hover:bg-rose-50"
+                                ? "bg-accent text-white shadow-md scale-105"
+                                : "bg-white border border-accent text-accent hover:bg-rose-50"
                                 }`}
                         >
                             {isSelected ? "Selected ✓" : "Select Duration"}
@@ -143,6 +150,8 @@ const CartItem = ({ item, handleRemove, onDurationSelect, onSizeChange }) => {
                             <div className="relative">
                                 <input
                                     type="date"
+                                    value={startDate}
+                                    min={minDate}
                                     className="w-full border border-gray-300 bg-white rounded-lg py-2 px-3 text-sm text-gray-700 focus:outline-none focus:border-[#6A0D25] focus:ring-1 focus:ring-[#6A0D25] appearance-none"
                                     onChange={(e) => handleDateChange(e.target.value)}
                                 />
@@ -182,7 +191,7 @@ const CartItem = ({ item, handleRemove, onDurationSelect, onSizeChange }) => {
 
 
 const Cart = () => {
-    const { cart, setCart } = useContext(AuthContext);
+    const { cart, setCart, user } = useContext(AuthContext);
     const navigate = useNavigate();
     const [selectedDurations, setSelectedDurations] = useState({});
     const [showCouponInput, setShowCouponInput] = useState(false);
@@ -203,6 +212,31 @@ const Cart = () => {
         ));
     };
 
+    const validateCoupon = (coupon, subtotal, userEmail) => {
+        if (!coupon || !coupon.code) return 'Invalid coupon details.';
+        if (!coupon.active) return 'This coupon is inactive.';
+
+        const now = new Date();
+        if (coupon.expiresAt && new Date(coupon.expiresAt) < now) {
+            return 'This coupon has expired.';
+        }
+
+        if (coupon.minAmount && subtotal < coupon.minAmount) {
+            return `Requires a minimum order of ৳${coupon.minAmount}.`;
+        }
+
+        if (!userEmail) {
+            return 'Please sign in to use a coupon.';
+        }
+
+        const uses = coupon.usedBy?.filter(email => email === userEmail).length || 0;
+        if (coupon.maxUsesPerUser && uses >= coupon.maxUsesPerUser) {
+            return `You have already used this coupon ${coupon.maxUsesPerUser} time${coupon.maxUsesPerUser > 1 ? 's' : ''}.`;
+        }
+
+        return null;
+    };
+
     const handleApplyCoupon = () => {
         setCouponError('');
         if (!couponCode.trim()) {
@@ -211,7 +245,8 @@ const Cart = () => {
         }
 
         const coupons = JSON.parse(localStorage.getItem('wz_coupons') || '[]');
-        const found = coupons.find(c => c.code === couponCode.toUpperCase() && c.active);
+        const found = coupons.find(c => c.code === couponCode.toUpperCase());
+        const email = user?.email;
 
         if (!found) {
             setCouponError('Invalid or inactive coupon code');
@@ -219,6 +254,18 @@ const Cart = () => {
                 icon: 'error',
                 title: 'Invalid Coupon',
                 text: 'This coupon code is not valid or has been deactivated.',
+                confirmButtonColor: '#4A0E1B'
+            });
+            return;
+        }
+
+        const validationError = validateCoupon(found, subtotal, email);
+        if (validationError) {
+            setCouponError(validationError);
+            Swal.fire({
+                icon: 'error',
+                title: 'Coupon Not Applied',
+                text: validationError,
                 confirmButtonColor: '#4A0E1B'
             });
             return;
@@ -400,8 +447,8 @@ const Cart = () => {
                                         onClick={() => isAllSelected && navigate("/checkout", { state: { appliedCoupon } })}
                                         disabled={!isAllSelected}
                                         className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-lg font-bold transition ${isAllSelected
-                                                ? "bg-white text-accent hover:bg-secondary hover:text-white cursor-pointer shadow-lg"
-                                                : "bg-white/20 text-white/50 cursor-not-allowed border border-white/10"
+                                            ? "bg-white text-accent hover:bg-secondary hover:text-white cursor-pointer shadow-lg"
+                                            : "bg-white/20 text-white/50 cursor-not-allowed border border-white/10"
                                             }`}
                                     >
                                         <LockClosedIcon className="h-5 w-5" />

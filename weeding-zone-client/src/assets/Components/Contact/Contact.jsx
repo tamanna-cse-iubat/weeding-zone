@@ -174,7 +174,7 @@ const Contact = () => {
 
                             {/* Form header */}
                             <div className="mb-8">
-                                <h2 className="text-2xl font-serif font-bold text-[#4A0E1B] mb-1">Send a Message</h2>
+                                <h2 className="text-2xl font-serif font-bold text-[#4A0E1B] mb-1">Feedback</h2>
                                 <div className="flex items-center gap-2 mt-2">
                                     <div className="h-px w-8 bg-secondary/50"></div>
                                     <div className="w-1.5 h-1.5 rotate-45 bg-secondary"></div>
@@ -288,7 +288,7 @@ const Contact = () => {
                                     ) : (
                                         <>
                                             <PaperAirplaneIcon className="h-5 w-5" />
-                                            Send Message
+                                            send message
                                         </>
                                     )}
                                 </button>

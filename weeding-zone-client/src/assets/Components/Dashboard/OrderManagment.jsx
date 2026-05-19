@@ -13,11 +13,11 @@ import { addNotification } from '../../../utils/notificationService';
 const STATUS_FLOW = ['Pending', 'Confirmed', 'Shipped', 'Delivered'];
 
 const STATUS_STYLES = {
-    Pending:   { bg: 'bg-yellow-50',  text: 'text-yellow-700', border: 'border-yellow-200', icon: Clock },
-    Confirmed: { bg: 'bg-blue-50',    text: 'text-blue-700',   border: 'border-blue-200',   icon: Package },
-    Shipped:   { bg: 'bg-purple-50',  text: 'text-purple-700', border: 'border-purple-200', icon: Truck },
-    Delivered: { bg: 'bg-green-50',   text: 'text-green-700',  border: 'border-green-200',  icon: CheckCircle },
-    Cancelled: { bg: 'bg-red-50',     text: 'text-red-600',    border: 'border-red-200',    icon: X },
+    Pending: { bg: 'bg-yellow-50', text: 'text-yellow-700', border: 'border-yellow-200', icon: Clock },
+    Confirmed: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', icon: Package },
+    Shipped: { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200', icon: Truck },
+    Delivered: { bg: 'bg-green-50', text: 'text-green-700', border: 'border-green-200', icon: CheckCircle },
+    Cancelled: { bg: 'bg-red-50', text: 'text-red-600', border: 'border-red-200', icon: X },
 };
 
 const StatusBadge = ({ status }) => {
@@ -32,9 +32,9 @@ const StatusBadge = ({ status }) => {
 
 // ── main component ────────────────────────────────────────────────────────────
 const OrderManagment = () => {
-    const [orders, setOrders]           = useState([]);
-    const [filtered, setFiltered]       = useState([]);
-    const [search, setSearch]           = useState('');
+    const [orders, setOrders] = useState([]);
+    const [filtered, setFiltered] = useState([]);
+    const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('All');
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [showCouponPanel, setShowCouponPanel] = useState(false);
@@ -43,11 +43,39 @@ const OrderManagment = () => {
     const [coupons, setCoupons] = useState(() => {
         const saved = localStorage.getItem('wz_coupons');
         return saved ? JSON.parse(saved) : [
-            { id: 1, code: 'WEDDING10', discount: 10, type: 'percent', active: true },
-            { id: 2, code: 'FLAT500',   discount: 500, type: 'flat',   active: true },
+            {
+                id: 1,
+                code: 'WEDDING10',
+                discount: 10,
+                type: 'percent',
+                minAmount: 1000,
+                expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+                maxUsesPerUser: 1,
+                usedBy: [],
+                active: true,
+            },
+            {
+                id: 2,
+                code: 'FLAT500',
+                discount: 500,
+                type: 'flat',
+                minAmount: 3000,
+                expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+                maxUsesPerUser: 1,
+                usedBy: [],
+                active: true,
+            },
         ];
     });
-    const [couponForm, setCouponForm] = useState({ code: '', discount: '', type: 'percent', active: true });
+    const [couponForm, setCouponForm] = useState({
+        code: '',
+        discount: '',
+        type: 'percent',
+        minAmount: '',
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+        maxUsesPerUser: 1,
+        active: true,
+    });
 
     // Load orders from localStorage
     useEffect(() => {
@@ -96,7 +124,7 @@ const OrderManagment = () => {
         const doc = new jsPDF();
         const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
         const brandColor = [74, 14, 27]; // accent
-        const goldColor  = [245, 197, 24]; // #F5C518
+        const goldColor = [245, 197, 24]; // #F5C518
 
         // ── Background header band
         doc.setFillColor(...brandColor);
@@ -124,10 +152,10 @@ const OrderManagment = () => {
 
         const summaryData = [
             ['Total Orders', reportStats.total],
-            ['Pending',      reportStats.pending],
-            ['Confirmed',    reportStats.confirmed],
-            ['Shipped',      reportStats.shipped],
-            ['Delivered',    reportStats.delivered],
+            ['Pending', reportStats.pending],
+            ['Confirmed', reportStats.confirmed],
+            ['Shipped', reportStats.shipped],
+            ['Delivered', reportStats.delivered],
             ['Total Revenue', 'BDT ' + reportStats.revenue.toLocaleString()],
         ];
 
@@ -176,11 +204,11 @@ const OrderManagment = () => {
                 if (data.section === 'body' && data.column.index === 5) {
                     const status = data.cell.raw;
                     const colorMap = {
-                        Pending:   [254,240,138],
-                        Confirmed: [219,234,254],
-                        Shipped:   [233,213,255],
-                        Delivered: [220,252,231],
-                        Cancelled: [254,202,202],
+                        Pending: [254, 240, 138],
+                        Confirmed: [219, 234, 254],
+                        Shipped: [233, 213, 255],
+                        Delivered: [220, 252, 231],
+                        Cancelled: [254, 202, 202],
                     };
                     if (colorMap[status]) {
                         doc.setFillColor(...colorMap[status]);
@@ -204,10 +232,18 @@ const OrderManagment = () => {
 
         autoTable(doc, {
             startY: y + 4,
-            head: [['Code', 'Discount', 'Type', 'Status']],
+            head: [['Code', 'Discount', 'Type', 'Min Order', 'Expires', 'Max Uses', 'Status']],
             body: coupons.length
-                ? coupons.map(c => [c.code, c.type === 'percent' ? `${c.discount}%` : `BDT ${c.discount}`, c.type, c.active ? 'Active' : 'Inactive'])
-                : [['—', 'No coupons', '', '']],
+                ? coupons.map(c => [
+                    c.code,
+                    c.type === 'percent' ? `${c.discount}%` : `BDT ${c.discount}`,
+                    c.type,
+                    `BDT ${c.minAmount ?? 0}`,
+                    c.expiresAt,
+                    c.maxUsesPerUser,
+                    c.active ? 'Active' : 'Inactive'
+                ])
+                : [['—', 'No coupons', '', '', '', '', '']],
             theme: 'grid',
             headStyles: { fillColor: brandColor, textColor: 255, fontStyle: 'bold' },
             alternateRowStyles: { fillColor: [253, 251, 247] },
@@ -225,7 +261,7 @@ const OrderManagment = () => {
             doc.text(`Wedding Zone — Confidential | Page ${i} of ${pageCount}`, 14, 290);
         }
 
-        doc.save(`WeddingZone_Report_${new Date().toISOString().slice(0,10)}.pdf`);
+        doc.save(`WeddingZone_Report_${new Date().toISOString().slice(0, 10)}.pdf`);
         Swal.fire({ icon: 'success', title: 'Report Downloaded!', text: 'Your PDF report has been saved.', timer: 1800, showConfirmButton: false });
     };
 
@@ -276,10 +312,41 @@ const OrderManagment = () => {
 
     // Coupon CRUD
     const addCoupon = () => {
-        if (!couponForm.code || !couponForm.discount) return Swal.fire({ title: 'Error', text: 'Fill in all fields.', icon: 'error' });
-        const newC = { ...couponForm, id: Date.now(), discount: Number(couponForm.discount) };
+        const code = couponForm.code?.trim().toUpperCase();
+        const discount = Number(couponForm.discount);
+        const minAmount = Number(couponForm.minAmount);
+        const expiresAt = couponForm.expiresAt;
+        const maxUsesPerUser = Number(couponForm.maxUsesPerUser);
+
+        if (!code || !discount || !expiresAt || Number.isNaN(minAmount) || minAmount < 0 || Number.isNaN(maxUsesPerUser) || maxUsesPerUser < 1) {
+            return Swal.fire({ title: 'Error', text: 'Fill in all coupon fields correctly.', icon: 'error' });
+        }
+
+        const expiryDate = new Date(expiresAt);
+        if (expiryDate.toString() === 'Invalid Date' || expiryDate < new Date()) {
+            return Swal.fire({ title: 'Error', text: 'Expiry date must be a valid future date.', icon: 'error' });
+        }
+
+        const newC = {
+            ...couponForm,
+            id: Date.now(),
+            code,
+            discount,
+            minAmount,
+            maxUsesPerUser,
+            usedBy: [],
+        };
+
         saveCoupons([...coupons, newC]);
-        setCouponForm({ code: '', discount: '', type: 'percent', active: true });
+        setCouponForm({
+            code: '',
+            discount: '',
+            type: 'percent',
+            minAmount: '',
+            expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+            maxUsesPerUser: 1,
+            active: true,
+        });
         Swal.fire({ icon: 'success', title: 'Coupon Added!', timer: 1200, showConfirmButton: false });
     };
 
@@ -330,12 +397,12 @@ const OrderManagment = () => {
                 {/* ── Stat Cards ── */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4">
                     {[
-                        { label: 'Total Orders', value: stats.total,     color: 'bg-[#4A0E1B] text-white' },
-                        { label: 'Pending',       value: stats.pending,   color: 'bg-yellow-50 text-yellow-700 border border-yellow-200' },
-                        { label: 'Confirmed',     value: stats.confirmed, color: 'bg-blue-50 text-blue-700 border border-blue-200' },
-                        { label: 'Shipped',       value: stats.shipped,   color: 'bg-purple-50 text-purple-700 border border-purple-200' },
-                        { label: 'Delivered',     value: stats.delivered, color: 'bg-green-50 text-green-700 border border-green-200' },
-                        { label: 'Revenue (৳)',   value: `৳${stats.revenue.toLocaleString()}`, color: 'bg-[#F5C518] text-[#4A0E1B] font-bold' },
+                        { label: 'Total Orders', value: stats.total, color: 'bg-[#4A0E1B] text-white' },
+                        { label: 'Pending', value: stats.pending, color: 'bg-yellow-50 text-yellow-700 border border-yellow-200' },
+                        { label: 'Confirmed', value: stats.confirmed, color: 'bg-blue-50 text-blue-700 border border-blue-200' },
+                        { label: 'Shipped', value: stats.shipped, color: 'bg-purple-50 text-purple-700 border border-purple-200' },
+                        { label: 'Delivered', value: stats.delivered, color: 'bg-green-50 text-green-700 border border-green-200' },
+                        { label: 'Revenue (৳)', value: `৳${stats.revenue.toLocaleString()}`, color: 'bg-[#F5C518] text-[#4A0E1B] font-bold' },
                     ].map(c => (
                         <div key={c.label} className={`rounded-2xl p-4 shadow-sm text-center ${c.color}`}>
                             <p className="text-2xl font-bold">{c.value}</p>
@@ -354,7 +421,7 @@ const OrderManagment = () => {
                         {/* Add Coupon Form */}
                         <div className="bg-[#FDFBF7] border border-[#F2ECE4] rounded-xl p-5 mb-6">
                             <h3 className="font-semibold text-gray-700 mb-4 flex items-center gap-2"><Plus className="w-4 h-4" /> Create New Coupon</h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-6 gap-3">
                                 <input
                                     type="text"
                                     placeholder="Coupon Code (e.g. SAVE20)"
@@ -377,6 +444,29 @@ const OrderManagment = () => {
                                     <option value="percent">Percentage (%)</option>
                                     <option value="flat">Flat Amount (৳)</option>
                                 </select>
+                                <input
+                                    type="number"
+                                    placeholder="Minimum Order (৳)"
+                                    value={couponForm.minAmount}
+                                    onChange={e => setCouponForm(p => ({ ...p, minAmount: e.target.value }))}
+                                    className="px-4 py-2.5 rounded-xl bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#4A0E1B]/20 text-sm"
+                                />
+                                <input
+                                    type="date"
+                                    value={couponForm.expiresAt}
+                                    onChange={e => setCouponForm(p => ({ ...p, expiresAt: e.target.value }))}
+                                    className="px-4 py-2.5 rounded-xl bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#4A0E1B]/20 text-sm"
+                                />
+                                <input
+                                    type="number"
+                                    placeholder="Max Uses / User"
+                                    min="1"
+                                    value={couponForm.maxUsesPerUser}
+                                    onChange={e => setCouponForm(p => ({ ...p, maxUsesPerUser: Number(e.target.value) }))}
+                                    className="px-4 py-2.5 rounded-xl bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#4A0E1B]/20 text-sm"
+                                />
+                            </div>
+                            <div className="mt-3">
                                 <button
                                     onClick={addCoupon}
                                     className="flex items-center justify-center gap-2 bg-[#4A0E1B] text-white px-4 py-2.5 rounded-xl font-semibold text-sm hover:bg-[#6A1A2A] transition"
@@ -391,14 +481,14 @@ const OrderManagment = () => {
                             <table className="w-full text-sm">
                                 <thead className="bg-gray-50 border-b border-gray-100">
                                     <tr>
-                                        {['Code', 'Discount', 'Type', 'Status', 'Actions'].map(h => (
+                                        {['Code', 'Discount', 'Type', 'Min Order', 'Expires', 'Uses', 'Status', 'Actions'].map(h => (
                                             <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
                                         ))}
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50">
                                     {coupons.length === 0 ? (
-                                        <tr><td colSpan="5" className="text-center py-8 text-gray-400 italic">No coupons created yet.</td></tr>
+                                        <tr><td colSpan="8" className="text-center py-8 text-gray-400 italic">No coupons created yet.</td></tr>
                                     ) : coupons.map(c => (
                                         <tr key={c.id} className="hover:bg-gray-50 transition">
                                             <td className="px-5 py-3">
@@ -408,6 +498,9 @@ const OrderManagment = () => {
                                                 {c.type === 'percent' ? `${c.discount}%` : `৳${c.discount}`}
                                             </td>
                                             <td className="px-5 py-3 text-gray-500 capitalize">{c.type}</td>
+                                            <td className="px-5 py-3 text-gray-700">৳{c.minAmount ?? 0}</td>
+                                            <td className="px-5 py-3 text-gray-500">{c.expiresAt}</td>
+                                            <td className="px-5 py-3 text-gray-700">{(c.usedBy?.filter(Boolean).length || 0)}/{c.maxUsesPerUser}</td>
                                             <td className="px-5 py-3">
                                                 <button
                                                     onClick={() => toggleCoupon(c.id)}
@@ -558,7 +651,7 @@ const OrderManagment = () => {
                                 <p className="text-sm text-gray-500">{selectedOrder.customerEmail}</p>
                                 <p className="text-sm text-gray-500 mt-1">Date: {selectedOrder.date}</p>
                                 <p className="text-sm text-gray-500">Payment: <span className="capitalize font-medium">{selectedOrder.paymentMethod}</span></p>
-                                
+
                                 {selectedOrder.shipping && (
                                     <div className="mt-4 pt-4 border-t border-[#F2ECE4]">
                                         <p className="text-xs font-semibold text-gray-400 uppercase mb-2">Shipping Details</p>

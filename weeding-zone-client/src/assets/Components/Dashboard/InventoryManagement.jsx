@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Plus, Edit, Trash2, Search, X, Package, Tag, Layers, Calendar, DollarSign, Boxes, Ruler } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, X, Package, Tag, Layers, Calendar, DollarSign, Boxes, Ruler, Banknote } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { CurrencyDollarIcon } from '@heroicons/react/24/outline';
 
 const InventoryManagement = () => {
     const [products, setProducts] = useState([]);
@@ -288,7 +289,7 @@ const InventoryManagement = () => {
                                 {/* Rent */}
                                 <div>
                                     <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                                        <DollarSign className="size-4" /> Rent Price (৳)
+                                        <Banknote className="size-4" /> Rent Price (৳)
                                     </label>
                                     <input 
                                         required name="rent" type="number" value={formData.rent} onChange={handleInputChange}
