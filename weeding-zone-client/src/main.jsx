@@ -30,6 +30,7 @@ import OrderManagment from './assets/Components/Dashboard/OrderManagment.jsx'
 import Contact from './assets/Components/Contact/Contact.jsx'
 import MyOrders from './assets/Components/Dashboard/Customer/MyOrders.jsx'
 import OrderDetailView from './assets/Components/Dashboard/Customer/OrderDetailView.jsx'
+import Policy from './assets/Components/Cancellation & Refund Policy/Policy.jsx'
 
 axios.defaults.baseURL = import.meta.env.VITE_API_URL || '';
 
@@ -66,6 +67,10 @@ const router = createBrowserRouter([{
     {
       path: '/contact',
       Component: Contact
+    },
+    {
+      path: '/policy',
+      Component: Policy
     },
     {
       path: '/category/:categoryName',

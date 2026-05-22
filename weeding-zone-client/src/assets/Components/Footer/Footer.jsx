@@ -1,5 +1,6 @@
 import React from 'react';
 import './Footer.css'
+import { Link } from 'react-router';
 
 const Footer = () => {
     return (
@@ -48,7 +49,9 @@ const Footer = () => {
                     </svg>
                 </li>
             </ul>
-
+            <aside>
+              <Link to="/policy">Cancellation & Refund Policy</Link>
+            </aside>
             <aside>
                 <p>Copyright © {new Date().getFullYear()} - All right reserved by Weeding Zone By Tamanna Parvez</p>
             </aside>

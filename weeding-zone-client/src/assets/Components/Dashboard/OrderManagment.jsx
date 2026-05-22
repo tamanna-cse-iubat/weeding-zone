@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import {
     Search, Package, Truck, CheckCircle, Clock, X, Plus, Trash2,
@@ -38,6 +38,9 @@ const OrderManagment = () => {
     const [statusFilter, setStatusFilter] = useState('All');
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [showCouponPanel, setShowCouponPanel] = useState(false);
+    const [reportStartDate, setReportStartDate] = useState('');
+    const [reportEndDate, setReportEndDate] = useState('');
+    const [reportCategory, setReportCategory] = useState('All');
 
     // Coupon state
     const [coupons, setCoupons] = useState(() => {
@@ -111,18 +114,21 @@ const OrderManagment = () => {
 
     // ── PDF Report ──────────────────────────────────────────────────────────
     const generateReport = () => {
-        // Calculate stats locally
+        const reportOrders = getReportOrders();
+
         const reportStats = {
-            total: orders.length,
-            pending: orders.filter(o => o.status === 'Pending').length,
-            confirmed: orders.filter(o => o.status === 'Confirmed').length,
-            shipped: orders.filter(o => o.status === 'Shipped').length,
-            delivered: orders.filter(o => o.status === 'Delivered').length,
-            revenue: orders.filter(o => o.status !== 'Cancelled').reduce((s, o) => s + (o.totalAmount || 0), 0),
+            total: reportOrders.length,
+            pending: reportOrders.filter(o => o.status === 'Pending').length,
+            confirmed: reportOrders.filter(o => o.status === 'Confirmed').length,
+            shipped: reportOrders.filter(o => o.status === 'Shipped').length,
+            delivered: reportOrders.filter(o => o.status === 'Delivered').length,
+            revenue: reportOrders.filter(o => o.status !== 'Cancelled').reduce((s, o) => s + (o.totalAmount || 0), 0),
         };
 
         const doc = new jsPDF();
-        const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        const now = new Date();
+        const generatedDate = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        const generatedTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
         const brandColor = [74, 14, 27]; // accent
         const goldColor = [245, 197, 24]; // #F5C518
 
@@ -140,10 +146,17 @@ const OrderManagment = () => {
         doc.setFontSize(11);
         doc.setFont('helvetica', 'normal');
         doc.text('Order Management Report', 14, 25);
-        doc.text(`Generated: ${date}`, 14, 32);
+        doc.text(`Generated: ${generatedDate} ${generatedTime}`, 14, 32);
+
+        const categoryLabel = reportCategory === 'All' ? 'All categories' : reportCategory;
+        const rangeText = reportStartDate || reportEndDate ? `${reportStartDate || 'Any'} → ${reportEndDate || 'Any'}` : 'All dates';
+
+        doc.setFontSize(10);
+        doc.text(`Category: ${categoryLabel}`, 14, 38);
+        doc.text(`Report period: ${rangeText}`, 14, 44);
 
         // ── Stats summary boxes
-        let y = 48;
+        let y = 52;
         doc.setFontSize(13);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(...brandColor);
@@ -171,14 +184,16 @@ const OrderManagment = () => {
             margin: { left: 14, right: 14 },
         });
 
+        const reportTitle = (reportStartDate || reportEndDate || reportCategory !== 'All') ? 'Filtered Orders' : 'All Orders';
+
         // ── Orders table
         y = doc.lastAutoTable.finalY + 12;
         doc.setFontSize(13);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(...brandColor);
-        doc.text('All Orders', 14, y);
+        doc.text(reportTitle, 14, y);
 
-        const orderRows = orders.map(o => [
+        const orderRows = reportOrders.map(o => [
             o.orderId,
             o.customerName || o.customerEmail,
             o.date,
@@ -261,12 +276,52 @@ const OrderManagment = () => {
             doc.text(`Wedding Zone — Confidential | Page ${i} of ${pageCount}`, 14, 290);
         }
 
-        doc.save(`WeddingZone_Report_${new Date().toISOString().slice(0, 10)}.pdf`);
+        const safeCategory = reportCategory.replace(/\s+/g, '_');
+        const safeStart = reportStartDate || 'all';
+        const safeEnd = reportEndDate || 'all';
+        const fileTime = now.toISOString().slice(0, 16).replace(/[:T]/g, '-');
+        doc.save(`WeddingZone_Report_${safeCategory}_${safeStart}_${safeEnd}_${fileTime}.pdf`);
         Swal.fire({ icon: 'success', title: 'Report Downloaded!', text: 'Your PDF report has been saved.', timer: 1800, showConfirmButton: false });
     };
 
     const saveOrders = (updated) => {
         setOrders(updated);
+    };
+
+    const orderCategories = useMemo(() => {
+        const categories = new Set();
+        orders.forEach(order => {
+            order.items?.forEach(item => {
+                if (item?.category) categories.add(item.category);
+            });
+        });
+        return ['All', ...Array.from(categories).sort()];
+    }, [orders]);
+
+    const parseOrderDate = (orderDate) => {
+        const date = new Date(orderDate);
+        return Number.isNaN(date.getTime()) ? null : date;
+    };
+
+    const getReportOrders = () => {
+        return orders.filter(order => {
+            const orderDate = parseOrderDate(order.date);
+            if (!orderDate) return false;
+
+            if (reportStartDate) {
+                const start = new Date(reportStartDate);
+                if (orderDate < start) return false;
+            }
+            if (reportEndDate) {
+                const end = new Date(reportEndDate);
+                end.setHours(23, 59, 59, 999);
+                if (orderDate > end) return false;
+            }
+            if (reportCategory !== 'All') {
+                return order.items?.some(item => item.category === reportCategory);
+            }
+            return true;
+        });
     };
 
     // Persist coupons
@@ -376,6 +431,38 @@ const OrderManagment = () => {
                     <div>
                         <h1 className="text-3xl font-bold text-[#4A0E1B]">Order Management</h1>
                         <p className="text-sm text-gray-500 mt-1">Manage all customer orders and delivery statuses.</p>
+                        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                            <label className="flex flex-col text-sm text-gray-600">
+                                <span className="mb-1 font-medium">Start Date</span>
+                                <input
+                                    type="date"
+                                    value={reportStartDate}
+                                    onChange={e => setReportStartDate(e.target.value)}
+                                    className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4A0E1B]/20"
+                                />
+                            </label>
+                            <label className="flex flex-col text-sm text-gray-600">
+                                <span className="mb-1 font-medium">End Date</span>
+                                <input
+                                    type="date"
+                                    value={reportEndDate}
+                                    onChange={e => setReportEndDate(e.target.value)}
+                                    className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4A0E1B]/20"
+                                />
+                            </label>
+                            <label className="flex flex-col text-sm text-gray-600">
+                                <span className="mb-1 font-medium">Category</span>
+                                <select
+                                    value={reportCategory}
+                                    onChange={e => setReportCategory(e.target.value)}
+                                    className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4A0E1B]/20"
+                                >
+                                    {orderCategories.map(cat => (
+                                        <option key={cat} value={cat}>{cat}</option>
+                                    ))}
+                                </select>
+                            </label>
+                        </div>
                     </div>
                     <div className="flex gap-2">
                         <button
