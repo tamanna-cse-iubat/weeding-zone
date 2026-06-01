@@ -371,10 +371,10 @@ const CustomerDashboard = () => {
                         <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[radial-gradient(circle_at_50%_50%,#fff,transparent)]"></div>
                         <div className="relative z-1 space-y-4 max-w-md">
                             <h2 className="text-[#D4AF37] font-serif text-3xl font-bold italic">Special Offer!</h2>
-                            <p className="text-white/80 text-lg">Get 15% OFF on your next rental</p>
+                            <p className="text-white/80 text-lg">Get 10% OFF on your next rental</p>
                             <div className="flex items-center gap-3">
                                 <span className="text-xs text-white/60 uppercase tracking-widest">Use Code:</span>
-                                <span className="bg-white/10 border border-white/20 px-4 py-1.5 rounded-lg font-mono font-bold tracking-wider">WZ15OFF</span>
+                                <span className="bg-white/10 border border-white/20 px-4 py-1.5 rounded-lg font-mono font-bold tracking-wider">WEEDING</span>
                             </div>
                         </div>
                         <div className="relative z-1">

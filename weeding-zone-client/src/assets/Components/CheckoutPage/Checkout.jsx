@@ -302,8 +302,11 @@ const Checkout = () => {
                                             />
                                         </div>
                                         <div className="md:col-span-2">
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-                                            <input required type="tel" name="phone" className="w-full border border-gray-300 rounded-lg py-2.5 px-4 text-gray-700 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent" placeholder="+880 1XXX XXXXXX" />
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Mobile Number</label>
+                                                <input required type="text" name="mobile" name="mobile"
+                                                    maxlength="11"
+                                                    minlength="11"
+                                                    pattern="[0-9]{11}" className="w-full border border-gray-300 rounded-lg py-2.5 px-4 text-gray-700 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent" placeholder="Enter Your 11 Digits Mobile Number" />
                                         </div>
                                         <div className="md:col-span-2">
                                             <label className="block text-sm font-medium text-gray-700 mb-2">Street Address</label>
@@ -418,7 +421,7 @@ const Checkout = () => {
                                                     <label className="block text-sm font-medium text-gray-700 mb-2">Card Holder Name</label>
                                                     <input
                                                         type="text"
-                                                        placeholder=" "
+                                                        placeholder="Card Holder Name"
                                                         value={cardForm.cardHolder}
                                                         onChange={(e) => setCardForm({ ...cardForm, cardHolder: e.target.value.toUpperCase() })}
                                                         className="w-full border border-gray-300 rounded-lg py-2.5 px-4 text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"

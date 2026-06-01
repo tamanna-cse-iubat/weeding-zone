@@ -32,6 +32,7 @@ import MyOrders from './assets/Components/Dashboard/Customer/MyOrders.jsx'
 import OrderDetailView from './assets/Components/Dashboard/Customer/OrderDetailView.jsx'
 import Policy from './assets/Components/Cancellation & Refund Policy/Policy.jsx'
 
+
 axios.defaults.baseURL = import.meta.env.VITE_API_URL || '';
 
 const productLoader = async () => {
@@ -115,6 +116,7 @@ const router = createBrowserRouter([{
       path: '/thank-you',
       element: <ThankYou></ThankYou>
     },
+   
     {
       path: '/wishlist',
       element: <Wishlist></Wishlist>

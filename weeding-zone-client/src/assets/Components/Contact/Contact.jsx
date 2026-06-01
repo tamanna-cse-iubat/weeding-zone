@@ -149,23 +149,7 @@ const Contact = () => {
                             </div>
                         ))}
 
-                        {/* Social strip */}
-                        <div className="bg-[#4A0E1B] rounded-2xl p-5 text-white">
-                            <p className="text-xs tracking-widest uppercase text-white mb-3 font-ubuntu">
-                                Follow Our Journey
-                            </p>
-                            <div className="flex gap-3">
-                                {['Facebook', 'Instagram', 'Pinterest'].map((s) => (
-                                    <a
-                                        key={s}
-                                        href="#"
-                                        className="flex-1 text-center text-xs font-semibold bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg py-2 transition"
-                                    >
-                                        {s}
-                                    </a>
-                                ))}
-                            </div>
-                        </div>
+                    
                     </div>
 
                     {/* ── RIGHT: Contact Form ── */}
@@ -175,7 +159,7 @@ const Contact = () => {
                             {/* Form header */}
                             <div className="mb-8">
                                 <h2 className="text-2xl font-serif font-bold text-[#4A0E1B] mb-1">Feedback</h2>
-                                <div className="flex items-center gap-2 mt-2">
+                                <div className="flex items-center justify-center gap-2 mt-2">
                                     <div className="h-px w-8 bg-secondary/50"></div>
                                     <div className="w-1.5 h-1.5 rotate-45 bg-secondary"></div>
                                     <div className="h-px w-8 bg-secondary/50"></div>
@@ -195,7 +179,7 @@ const Contact = () => {
                                             name="name"
                                             type="text"
                                             required
-                                            placeholder="Fatima Rahman"
+                                            placeholder="your name"
                                             value={form.name}
                                             onChange={handleChange}
                                             className={inputClass}

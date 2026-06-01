@@ -159,7 +159,7 @@ const ThankYou = () => {
 
                 {/* Support Card */}
                 <div className="mt-8 text-center text-gray-400 text-sm">
-                    <p>Having trouble? Contact our support at <span className="text-rose-600 font-bold">support@weddingzone.com</span></p>
+                    <p>Having trouble? Contact our support at <span className="text-gray-400 font-medium">support weddingzone</span></p>
                     <p className="mt-2">© 2024 Wedding Zone. All rights reserved.</p>
                 </div>
             </div>
